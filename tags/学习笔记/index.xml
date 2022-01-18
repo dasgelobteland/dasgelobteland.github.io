@@ -1,13 +1,1 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>学习笔记 on 执痴</title><link>https://dasgelobteland.github.io/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link><description>Recent content in 学习笔记 on 执痴</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 18 Jan 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://dasgelobteland.github.io/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.xml" rel="self" type="application/rss+xml"/><item><title>我的pleroma搭建笔记</title><link>https://dasgelobteland.github.io/posts/22pleroma/</link><pubDate>Tue, 18 Jan 2022 00:00:00 +0000</pubDate><guid>https://dasgelobteland.github.io/posts/22pleroma/</guid><description>&lt;h1 id="写在前面">写在前面&lt;/h1>
-&lt;blockquote>
-&lt;p>已经搭好自己的pleroma实例并且正常运行一段时间了，是时候写一篇学习笔记了。&lt;strong>声明：本笔记仅有10%为原创内容，90%都是交作业(&lt;em>^_^&lt;/em>)&lt;/strong>&lt;/p>
-&lt;/blockquote>
-&lt;blockquote>
-&lt;p>我作为一个啥也不懂的小白，很多在别人眼里不算问题的问题就足以难倒我了。在这期间，Suica老师温柔地说“有问题一定来问噢”给了我很大的勇气。谢谢Suica老师的耐心回答和细致的debug！后来我也请教了Kana老师如何做表情包放大的功能，还问了若干问题。不仅感谢Kana老师的热情回答，也想感谢Kana这一年多用心运营了wuppo站。&lt;/p>
-&lt;/blockquote>
-&lt;blockquote>
-&lt;p>我和Pleroma的缘分就是从我注册了wuppo的那一天开始的，Kana发给我了一篇pleroma使用tips&amp;amp;更新合集（而这篇正是Suica写的指南），我才得以一窥fediverse的浩瀚。&lt;/p>
-&lt;/blockquote>
-&lt;blockquote>
-&lt;p>如今我终于在这个宇宙里面有了一颗小小的星球，认识了许许多多的别的星球的居民。来日方长，期待和大家继续交流~&lt;/p>
-&lt;/blockquote></description></item><item><title>背书心得</title><link>https://dasgelobteland.github.io/posts/21bs0524/</link><pubDate>Mon, 24 May 2021 00:00:00 +0000</pubDate><guid>https://dasgelobteland.github.io/posts/21bs0524/</guid><description/></item></channel></rss>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>学习笔记 on 执痴</title><link>https://dasgelobteland.github.io/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/</link><description>Recent content in 学习笔记 on 执痴</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Tue, 18 Jan 2022 00:00:00 +0000</lastBuildDate><atom:link href="https://dasgelobteland.github.io/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.xml" rel="self" type="application/rss+xml"/><item><title>我的pleroma搭建笔记</title><link>https://dasgelobteland.github.io/posts/22pleroma/</link><pubDate>Tue, 18 Jan 2022 00:00:00 +0000</pubDate><guid>https://dasgelobteland.github.io/posts/22pleroma/</guid><description/></item><item><title>背书心得</title><link>https://dasgelobteland.github.io/posts/21bs0524/</link><pubDate>Mon, 24 May 2021 00:00:00 +0000</pubDate><guid>https://dasgelobteland.github.io/posts/21bs0524/</guid><description/></item></channel></rss>

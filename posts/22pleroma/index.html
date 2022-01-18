@@ -1,0 +1,254 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=author content="VarKai">
+<title>我的pleroma搭建笔记 ｜ 执痴</title>
+<meta name=description content="写在前面  已经搭好自己的pleroma实例并且正常运行一段时间了，是时候写一篇学习笔记了。声明：本笔记仅有10%为原创内容，90%都是交作业(^_^)
+  我作为一个啥也不懂的小白，很多在别人眼里不算问题的问题就足以难倒我了。在这期间，Suica老师温柔地说“有问题一定来问噢”给了我很大的勇气。谢谢Suica老师的耐心回答和细致的debug！后来我也请教了Kana老师如何做表情包放大的功能，还问了若干问题。不仅感谢Kana老师的热情回答，也想感谢Kana这一年多用心运营了wuppo站。
+  我和Pleroma的缘分就是从我注册了wuppo的那一天开始的，Kana发给我了一篇pleroma使用tips&amp;amp;更新合集（而这篇正是Suica写的指南），我才得以一窥fediverse的浩瀚。
+  如今我终于在这个宇宙里面有了一颗小小的星球，认识了许许多多的别的星球的居民。来日方长，期待和大家继续交流~
+">
+<meta name=keywords content>
+<link rel="shortcut icon" href=https://dasgelobteland.github.io/images/favicon.ico>
+<link rel=stylesheet type=text/css media=screen href=https://dasgelobteland.github.io/css/normalize.css>
+<link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css>
+<link rel=stylesheet type=text/css media=screen href=https://dasgelobteland.github.io/css/zozo.css>
+<link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css>
+<link rel=stylesheet type=text/css media=screen href=https://dasgelobteland.github.io/css/highlight.css>
+</head>
+<body>
+<div class="main animate__animated animate__fadeInDown">
+<div class="nav_container animated fadeInDown">
+<div class=site_nav id=site_nav>
+<ul>
+<li>
+<a href=/>Home</a>
+</li>
+<li>
+<a href=/posts/>Archive</a>
+</li>
+<li>
+<a href=/tags/>Tags</a>
+</li>
+<li>
+<a href=/about/>About</a>
+</li>
+</ul>
+</div>
+<div class=menu_icon>
+<a id=menu_icon><i class=ri-menu-line></i></a>
+</div>
+</div>
+<div class="header animated fadeInDown">
+<div class=site_title_container>
+<div class=site_title>
+<h1>
+<a href=https://dasgelobteland.github.io/>
+<span>执痴</span>
+</a>
+</h1>
+</div>
+<div class=description>
+<p class=sub_title>未经审视的人生不值得过。</p>
+<div class=my_socials>
+<a href=%20 title=facebook target=_blank><i class=ri-facebook-fill></i></a>
+<a href=%20 title=github target=_blank><i class=ri-github-fill></i></a>
+<a href=%20 title=instagram target=_blank><i class=ri-instagram-fill></i></a>
+<a href=%20 title=twitter target=_blank><i class=ri-twitter-fill></i></a>
+<a href=%20 title=weibo target=_blank><i class=ri-weibo-fill></i></a>
+<a href=https://dasgelobteland.github.io/index.xml type=application/rss+xml title=rss target=_blank><i class=ri-rss-fill></i></a>
+</div>
+</div>
+</div>
+</div>
+<div class=content>
+<div class=post_page>
+<div class="post animate__animated animate__fadeInDown">
+<div class="post_title post_detail_title">
+<h2><a href=/posts/22pleroma/>我的pleroma搭建笔记</a></h2>
+<span class=date>2022.01.18</span>
+</div>
+<div class="post_content markdown"><h1 id=写在前面>写在前面</h1>
+<blockquote>
+<p>已经搭好自己的pleroma实例并且正常运行一段时间了，是时候写一篇学习笔记了。<strong>声明：本笔记仅有10%为原创内容，90%都是交作业(<em>^_^</em>)</strong></p>
+</blockquote>
+<blockquote>
+<p>我作为一个啥也不懂的小白，很多在别人眼里不算问题的问题就足以难倒我了。在这期间，Suica老师温柔地说“有问题一定来问噢”给了我很大的勇气。谢谢Suica老师的耐心回答和细致的debug！后来我也请教了Kana老师如何做表情包放大的功能，还问了若干问题。不仅感谢Kana老师的热情回答，也想感谢Kana这一年多用心运营了wuppo站。</p>
+</blockquote>
+<blockquote>
+<p>我和Pleroma的缘分就是从我注册了wuppo的那一天开始的，Kana发给我了一篇pleroma使用tips&更新合集（而这篇正是Suica写的指南），我才得以一窥fediverse的浩瀚。</p>
+</blockquote>
+<blockquote>
+<p>如今我终于在这个宇宙里面有了一颗小小的星球，认识了许许多多的别的星球的居民。来日方长，期待和大家继续交流~</p>
+</blockquote>
+<br>
+<h1 id=建站准备工作>建站准备工作</h1>
+<p>本人大学学过python入门课，非程序员，约等于0基础……</p>
+<p>部分参考资料：</p>
+<ul>
+<li><a href=https://docs-develop.pleroma.social/>pleroma官方安装文档</a></li>
+<li><a href=https://git.pleroma.social/pleroma/pleroma>pleroma官方讨论社区</a></li>
+<li>各位Pleroma站长的建站教程、建站笔记
+<ul>
+<li><a href=https://suicablog.cobaltkiss.blue/posts/pleroma-installation-on-linux-using-otp-releases/>在 Debian 10 / Ubuntu 20.04 上安装 Pleroma（版本：2.2.1）</a> <strong>（我所有流程基本都是参考了这篇教程）</strong></li>
+<li><a href="https://wiki.iroiro.party/doku.php?id=start">形形色色——一个放置各种的建站教程以及一些建站所需要的基本知识的百科网站</a></li>
+<li><a href=https://blog.debula.ml/index.php/archives/7/#2.%E5%AE%9A%E5%88%B6>Pleroma 安装笔记</a></li>
+<li><a href=https://kyo.iroiro.party/posts/pleroma-building/#_1>尽量细致的Pleroma搭建教程（仮）</a></li>
+</ul>
+</li>
+</ul>
+<br>
+<ul>
+<li><a href="https://www.youtube.com/watch?v=l7mVsLSsotU&t=15s">How To Setup a Pleroma Instance （Video in Youtube）</a>（其实我搭的时候没看这个，只是后面google到了。视频内含的信息密度虽然小于博文教程，但是视频教程更容易帮助新手入门，看一看也无妨~）</li>
+</ul>
+<br>
+<ul>
+<li>Mastodon的各种建站教程（相较之下，Pleroma的中文教程很少。当我对某个东西比较陌生的时候，我会找一个教程更丰富的近似品来捋清思路。）
+<ul>
+<li><a href=https://pullopen.github.io/catalog/>Mastodon建站指南目录整理</a></li>
+<li><a href=https://www.notion.so/Mastodon-042a05ee29a048df8b2c1afd49e4c49b>长毛象（Mastodon）社区搭建详解</a></li>
+<li><a href=https://mantyke.icu/2021/mastodon-bulid/>Mastodon | 小球飞象建站笔记</a></li>
+</ul>
+</li>
+</ul>
+<br>
+<p>参考资料提供的是一个思路。当我捋清思路后，我选择了《在 Debian 10 / Ubuntu 20.04 上安装 Pleroma（版本：2.2.1）》这篇教程开始搭建。我的搭建过程和这篇教程基本一样，所以下面也只记录一些不一样的花式报错内容………………………………</p>
+<p><strong>(<em>^_^</em>)如果您是一位正在搭建pleroma的新手，以上就是我认为的本博文最有帮助的内容。祝您建站成功！接下来都是多位老师教我的各种知识，也没什么原创的内容，只有我放飞自我的私人学习笔记了！</strong></p>
+<br>
+<h1 id=用支付宝购买国外域名和国外vps>用支付宝购买国外域名和国外VPS</h1>
+<p>我花费最长时间的行为其实是绞尽脑汁地试图开通visa/万事达的信用卡。</p>
+<p>然后我失败了。</p>
+<p>多希望这些厂家可以推出像亚马逊礼品卡那样的好东西，在淘宝上买卡，然后在亚马逊官网充值后随意购买物品，充分保障了消费隐私，而不至于逼着我用支付宝在天朝监管下裸奔交易。如果有朝一日我无法再用支付宝付款，只能用数字人民币，那我可能就关站了吧。嘛，今朝有酒今朝醉了。</p>
+<p>当然那个时候我就会再一次绞尽脑汁地试图开通visa/万事达的信用卡。</p>
+<p>用支付宝付款，风险担在我身上；而购买国内的域名和VPS，就是坑别的fediverse用户了。所以我权衡后的最佳组合是用支付宝购买国外域名和VPS。</p>
+<ul>
+<li>找到一个靠谱一点的国外主机测评网 <a href=https://www.zhujiceping.com/>https://www.zhujiceping.com/</a></li>
+<li>挑一个物美价廉（主要还是谁便宜就买谁，欸，就是玩）的国外厂商，一眼相中了Justhost。
+<ul>
+<li><em>俄罗斯公司baxet llc（成立于2006~）旗下的justhost这几年在中国国内应该是比较火爆的，具体大致猜测原因有这么几个：（1）价格便宜，一个月不到8块钱；（2）不限流量，最低给200M带宽，允许你作死跑，当然不支持违规使用；（3）有大家喜欢的俄罗斯远东机房，还有那个莫斯科dataline没事儿机房给你带上个CN2 GT；（4）信用卡、PayPal、支付宝等可方便付款。</em></li>
+</ul>
+</li>
+<li>买了三个月的1G内存、25G硬盘的VPS，花了大概78rmb。</li>
+<li>主机搞定，买域名！依然在寻找一个物美价廉还能用支付宝的国外厂商，我选择了godaddy：
+<ul>
+<li>网站首页拉到底，选择网站初始语言，选中文。不要选中文港台繁体，因为还是用不了支付宝。选对了之后设置了我喜欢的域名，购买一年的使用权，花了26rmb。有些域名后缀看起来很便宜，但实际上只是头年优惠力度大，要看它以后续费的正常价格贵不贵，当然一直换着买第一年也行？反正我超级喜欢我的域名，不换！续就完事！</li>
+</ul>
+</li>
+</ul>
+<br>
+<h1 id=打开在-debian-10--ubuntu-2004-上安装-pleroma版本221开始复制粘贴>打开《在 Debian 10 / Ubuntu 20.04 上安装 Pleroma（版本：2.2.1）》开始复制粘贴：</h1>
+<p><em>我想告诉自己，有探索的精神是好事，但是粘贴别人的代码还是要一行一行地来，看到这一行都已经报错了，还要头铁复制下一步的代码，怎么可能安的上嘛！但是，重启再来几乎可以解决一切问题，如果不能解决，那就是没有删干净。Suica告诉我，不行就直接重装VPS（生活中的重装要记得备份，但此时此刻的我白手起家，可以说没有任何后顾备份之忧），再来一次</em>(<em>^_^</em>)</p>
+<p>因为购买了VPS和域名，跟着这篇教程，选用的管理VPS的工具就是Bitvise SSH Client，下载安装之后，打开这个软件登录邮件里面厂家发来的账号密码，就可以用这个工具方便地管理VPS，再进行各种安装pleroma的复制粘贴操作了。</p>
+<p>而我连登录那一步都不会呢(<em>^_^</em>)
+登录成功了就是这个样子：</p>
+<p><img src=https://newzc.usite.pro/_bl/0/89604385.jpg alt=登录1><br>
+<img src=https://newzc.usite.pro/_bl/0/33354971.jpg alt=登录2></p>
+<p>然后就可以在页面里面开始复制粘贴这篇教程里面的代码了。</p>
+<br>
+<h2 id=教程第一步-安装前准备的可能存在的一个问题>教程第一步 安装前准备的可能存在的一个问题</h2>
+<p>第3步Postgresql 性能调优中，需要修改postgresql.conf，而不同主机里面的该文件位置似乎不一样。</p>
+<p>Suica教程里面写的是<strong>编辑/etc/postgresql/11.9/main/postgresql.conf</strong>，但我要找的文件并不在这个位置。</p>
+<p>所以需要输入以下代码，查找正确位置：</p>
+<pre><code>find / | grep postgresql.conf
+</code></pre>
+<p>如图：</p>
+<p><img src=https://newzc.usite.pro/_bl/0/92546119.jpg alt></p>
+<p>然后再根据找到的位置，编辑这个文件：</p>
+<pre><code>nano /etc/postgresql/11/main/postgresql.conf
+</code></pre>
+<p>如图：</p>
+<p><img src=https://newzc.usite.pro/_bl/0/63681592.jpg alt></p>
+<br>
+<h2 id=教程第二步-正式安装pleroma的一个报错>教程第二步 正式安装pleroma的一个报错</h2>
+<p>因为我中途好几次自作聪明，没按照教程一步步运行成功就开始跳步骤执行下一步，所以第一次安装后面的奇怪报错层出不穷，只好重装来了第二次。尤其记得第9步里面<strong>若 config 文件生成成功，则出现若干问题需要回答</strong>，教程里面摘录的只是部分问题，其他问题我却没有耐心地按enter键，似乎就去弄第10步了……第二次我就老老实实地慢慢等所有问题填完，成功显示了*All files successfully written! Refer to the installation instructions for your platform for next steps. Please transfer your config to the database after running database migrations. Refer to “Transfering the config to/from the database” section of the docs for more information.*之后，再执行第10步的安装数据库。</p>
+<p>然后继续按教程安装……</p>
+<br>
+<h2 id=教程第三步的设置-nginx-并获取-lets-encrypt-ssl-证书的一个报错>教程第三步的设置 nginx 并获取 Let’s Encrypt SSL 证书的一个报错</h2>
+<p>在设置nginx证书的第3步时，我的报错如黄字所示：
+<img src=https://newzc.usite.pro/_bl/0/54211347.jpg alt></p>
+<p>Suica的回复：关于ufw，这个在Ubuntu系统里自带但在Debian系统中需要手动安装：</p>
+<pre><code>apt-get install ufw
+</code></pre>
+<p>然后继续按教程安装……后面就顺利装完了，站点上线了。</p>
+<p><em>如果是安装Matodon的话，后续还要接着弄外部媒体缓存。不过当我去询问Suica和Kana的时候，都得到了肯定的回复，除非特殊设置，Pleroma不会自动缓存外站的媒体文件，从私人站点的角度来讲，25GB硬盘的VPS完全够用了，所以我也就安心地当一个甩手掌柜了!</em></p>
+<br>
+<h1 id=安装成功后的各种必要操作>安装成功后的各种“必要”操作：</h1>
+<p>房有了。可是，它是一套清水房欸……没刷墙，没安装地板，窗也没开。赶紧开始搞装修呀！</p>
+<p>装修主体思路请参考这篇教程：https://blog.debula.ml/index.php/archives/7/#2.%E5%AE%9A%E5%88%B6
+，我也非常认同作者写的<strong>在开始折腾前，建议先完整地看一遍 官方文档（内含更多进阶）。</strong> 以及pleroma有非常好用的前端功能——pleroma fe 管理员模式！</p>
+<p>我想怎么装呢？我装修了什么呢？像什么全文搜索、数据迁移这些我还不会，慢慢学ing</p>
+<ul>
+<li>
+<p>站点icon（个性化：https://wiki.iroiro.party/doku.php?id=pleroma%E5%B8%B8%E7%94%A8%E9%85%8D%E7%BD%AE%E6%B1%87%E7%BC%96）</p>
+</li>
+<li>
+<p>站点表情包（个性化：https://blog.debula.ml/index.php/archives/7/#2.%E5%AE%9A%E5%88%B6）</p>
+<ul>
+<li>虽然括号网址里面有讲了怎么上传表情包，但是我一开始都没看懂。</li>
+<li>综合Suica的讲解，我举一个我的例子：我站里面一个账号注册了Neodb，但是我站里面还没有对应的星星表情，怎么添加呢？
+<ul>
+<li>准备两张背景<strong>透明</strong>的星星png图片，图片总大小<strong>不大于50KB</strong></li>
+<li>如图：<img src=https://newzc.usite.pro/_bl/0/67666986.png alt> <img src=https://newzc.usite.pro/_bl/0/41296345.png alt></li>
+<li>两张图片分别命名为：star_solid.png(一颗星)，star_half.png(半星)</li>
+<li>打开Bitvise SSH Client，将两张图从本地文件夹，拖到VPS对应的pleroma存放表情包的文件夹里面</li>
+<li>如图：<img src=https://newzc.usite.pro/_bl/0/85947757.jpg alt> <img src=https://newzc.usite.pro/_bl/0/67822767.jpg alt></li>
+<li>确定上传成功后，登录pleroma-fe模式，进入setting-emoji，点击Reload emoji重启。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>鼠标悬停Pleroma图片上，使图片/表情包放大（个性化，关爱近视人群：https://kyo.iroiro.party/posts/pleroma-largemoji/#pleroma-fe-static）</p>
+</li>
+<li>
+<p>加入中继</p>
+<ul>
+<li>中继的简介、重要性和中文中继推荐：https://mstdn.one/@list/106729842177738917</li>
+<li>加不上某些中继，但是又想tl上出现更多嘟文怎么办？
+<ul>
+<li>Kana告诉我一个办法：<strong>对于 Pleroma 实例而言，把 https://Pleroma实例域名/relay 当作中继连接来输入是可以关注这个实例的。</strong></li>
+<li>所以，我们可以访问 （https://the-federation.info/pleroma ）和（https://fedidb.org/network ）这两个fediverse黄页，手动添加自己心仪的pleroma实例。可以一口气关注所有的中文pleroma（因为太少），还可以关注几个头部外文实例（bae.st的人发黄图不选NFSW！）</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<br>
+<ul>
+<li>关掉注册功能（个性化：管理员模式里面换。菜鸟如我决定平稳开站一年再考虑开放注册的问题。因为用户来了就要对人家负责啊，而我还没学过迁移数据，把别人的数据弄丢了怎么办？Σ(っ °Д °;)っ）</li>
+</ul></div>
+<div class=post_footer>
+<div class=meta>
+<div class=info>
+<span class="field tags">
+<i class=ri-stack-line></i>
+<a href=https://dasgelobteland.github.io/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/>学习笔记</a>
+</span>
+</div>
+</div>
+</div>
+</div>
+<div class=doc_comments></div>
+</div>
+</div>
+</div>
+<a id=back_to_top href=# class=back_to_top><i class=ri-arrow-up-s-line></i></a>
+<footer class=footer>
+<div class=powered_by>
+<a href=https://varkai.com>Designed by VarKai,</a>
+<a href=http://www.gohugo.io/>Proudly published with Hugo</a>
+</div>
+<div class=footer_slogan>
+<span></span>
+</div>
+</footer>
+<script src=https://dasgelobteland.github.io/js/jquery-3.5.1.min.js></script>
+<link href=https://dasgelobteland.github.io/css/fancybox.min.css rel=stylesheet>
+<script src=https://dasgelobteland.github.io/js/fancybox.min.js></script>
+<script src=https://dasgelobteland.github.io/js/zozo.js></script>
+<script type=text/javascript async src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">MathJax.Hub.Config({tex2jax:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['[[',']]']],processEscapes:!0,processEnvironments:!0,skipTags:['script','noscript','style','textarea','pre'],TeX:{equationNumbers:{autoNumber:"AMS"},extensions:["AMSmath.js","AMSsymbols.js"]}}}),MathJax.Hub.Queue(function(){var b=MathJax.Hub.getAllJax(),a;for(a=0;a<b.length;a+=1)b[a].SourceElement().parentNode.className+=' has-jax'})</script>
+<style>code.has-jax{font:inherit;font-size:100%;background:inherit;border:inherit;color:#515151}</style>
+</body>
+</html>

@@ -76,7 +76,7 @@
 <br>
 <h1 id=建站准备工作>建站准备工作</h1>
 <p>关于本人的介绍：大学学过一点python，非程序员。所以，我行，你也行(〃￣︶￣)人(￣︶￣〃)</p>
-<p><code>（2022/05/01 更新）~~我认为很有帮助的三个理解：~~ 1、代码也是一种语言，所以，不要只是粘贴复制，我们一边理解这行代码什么意思，一边就可以仿词造句。2、VPS是啥啊？反正我理解的它是一台可以远程操作的电脑，我要是不想在dos页面粘贴代码了，我就直接访问虚拟机的桌面改文件里面的源码啊。 3、报错不可怕，就是因为报错，我才知道我下一步该干啥。而且把报错的代码拿去google，很容易就能找到N个已经被解决的错误……（虽然大部分都是英语，但是我们老中人从小学英语，实在看不懂就一键网页翻译嘛.）</code></p>
+<p><em>（2022/05/01 更新）<del>我认为很有帮助的三个理解：</del> 1、代码也是一种语言，所以，不要只是粘贴复制，我们一边理解这行代码什么意思，一边就可以仿词造句。2、VPS是啥啊？反正我理解的它是一台可以远程操作的电脑，我要是不想在dos页面粘贴代码了，我就直接访问虚拟机的桌面改文件里面的源码啊。3、报错不可怕，就是因为报错，我才知道我下一步该干啥。而且把报错的代码拿去google，很容易就能找到N个已经被解决的错误……（虽然大部分都是英语，但是我们老中人从小学英语，实在看不懂就一键网页翻译嘛。）</em></p>
 <br>
 <p>部分参考资料：</p>
 <ul>
@@ -215,8 +215,8 @@
 <ul>
 <li>Pleroma站点主题设计（风格化：https://docs-develop.pleroma.social/backend/configuration/howto_theming_your_instance/ ）
 <ul>
-<li>又在fediverse中文论坛里面搞了个汉化版：https://fediverse.eu.org/discussion/27/%E4%BA%94%E5%88%86%E9%92%9F%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%BC%82%E4%BA%AE%E7%9A%84pleroma%E4%B8%BB%E9%A2%98</li>
-<li>又好看又方便的Pleroma主题真的不来一个吗？</li>
+<li>又在fediverse中文论坛里面搞了个汉化版：（ <a href=https://fediverse.eu.org/discussion/27/%E4%BA%94%E5%88%86%E9%92%9F%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%BC%82%E4%BA%AE%E7%9A%84pleroma%E4%B8%BB%E9%A2%98>https://fediverse.eu.org/discussion/27/%E4%BA%94%E5%88%86%E9%92%9F%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%BC%82%E4%BA%AE%E7%9A%84pleroma%E4%B8%BB%E9%A2%98</a> ）</li>
+<li>这么漂亮的Pleroma主题真的不来一个吗？</li>
 </ul>
 </li>
 </ul>
@@ -227,20 +227,20 @@
 <li>如果要使用备份功能， Pleroma 要求该站点配置了发送邮件的功能，并且要知道备份的用户的邮箱：
 <ul>
 <li>
-<p>利用Outlook邮箱配置pleroma邮件服务：https://kyo.iroiro.party/posts/pleroma-using-postfix-for-email/</p>
+<p>利用Outlook邮箱配置pleroma邮件服务：（https://kyo.iroiro.party/posts/pleroma-using-postfix-for-email/ ）</p>
 </li>
 <li>
 <p>因为我的vps是 Debian，所以安装的包是</p>
 <ul>
-<li>sudo apt-get install libsasl2-modules</li>
-<li>sudo apt-get install postfix</li>
+<li><code>sudo apt-get install libsasl2-modules</code></li>
+<li><code>sudo apt-get install postfix</code></li>
 </ul>
 </li>
 <li>
 <p>配置邮件成功之后，要给备份的账号补充邮箱信息，就可以按照Kana这条调用Pleroma的备份API （https://im.vpnbanzai.eu.org/u/shykana/h/v63Ytp14j2Tk46pKgt）</p>
 </li>
 <li>
-<p>配合使用 <a href=https://pleromar.vercel.app/>https://pleromar.vercel.app/</a> 来查看本地下载的所有备份嘟文</p>
+<p>配合使用（https://pleromar.vercel.app/ ）来查看本地下载的所有备份嘟文</p>
 </li>
 </ul>
 </li>

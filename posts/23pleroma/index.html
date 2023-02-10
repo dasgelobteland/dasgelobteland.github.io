@@ -92,12 +92,12 @@
 <h2 id=参考资料>参考资料</h2>
 <p>基于上面的问题和需求，我去搜了一些相关的资料，发现中文pleroma教程越来越多了( •̀ ω •́ )y<br>
 以下是各种参考资料：</p>
-<p><strong>（非常感谢大家的pleroma相关讨论和各种教程，给了我很多启发和帮助。只有多交流才会有进步的可能~）</strong></p>
 <p><a href=https://blog.debula.ml/index.php/archives/5/>https://blog.debula.ml/index.php/archives/5/</a> 【数据备份、版本升级、前端 等】<br>
 <a href=https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/>https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/</a> 【数据备份】<br>
 <a href=https://seviche.cc/2023-01-22-backup/>https://seviche.cc/2023-01-22-backup/</a> 【数据备份】</p>
 <p><a href=https://dabr.ca/notice/AQhdqry35qWK6cVaBU>https://dabr.ca/notice/AQhdqry35qWK6cVaBU</a> 【相似的报错1】<br>
 <a href=https://dabr.ca/notice/AQfGjf2GH0kYH3XE9I>https://dabr.ca/notice/AQfGjf2GH0kYH3XE9I</a> 【相似的报错2】</p>
+<p><strong>（非常感谢大家的pleroma相关讨论和各种教程，给了我很多启发和帮助。只有多交流才会有进步的可能~）</strong></p>
 <h1 id=思路>思路</h1>
 <p>说起来，去年的pleroma安装完全是复制粘贴suica写好的教程，我对于PostgreSQL、nginx这些概念完全不懂。而今年要思考怎么修好实例，就得自己提出一些猜测，自己去学着验证。去年是简单地理解概念，今年要求更深入地理解陌生概念，还得额外面临一些不确定性进行试错和快速复原，所以学习的成本和难度增加了。</p>
 <h2 id=备份>备份</h2>
@@ -124,8 +124,7 @@
 systemctl stop pleroma
 # 禁用pleroma 
 systemctl disable pleroma
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
-</code></pre></div></li>
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback></code></pre></div></li>
 <li>
 <p>删除安装过程中创建的pleroma、nginx 和 systemd文件和文件夹（以下只是我删除的路径，仅作参考）</p>
 <p>/var/lib/pleroma<br>
@@ -148,9 +147,7 @@ sudo apt-get autoremove
 
 # 重装
 apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
-
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
-</code></pre></div></li>
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback></code></pre></div></li>
 <li>
 <p>重启 nginx<code>systemctl reload nginx</code></p>
 </li>
@@ -159,9 +156,7 @@ apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>sudo -Hu postgres psql -c &#39;DROP DATABASE &lt;pleroma_db&gt;;&#39;;
 
 sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;
-
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
-</code></pre></div></li>
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback></code></pre></div></li>
 <li>
 <p>删除系统用户 <code>userdel pleroma</code></p>
 <ul>
@@ -174,8 +169,7 @@ kill -15 749（749替换为对应出现的数字）
 # 重新尝试删除
 userdel pleroma
 </code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
-我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。
-
+ - 我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。
 
 </code></pre></div></li>
 <li>
@@ -187,16 +181,13 @@ userdel pleroma
 
 su pleroma -s $SHELL -lc &#34;curl &#39;https://git.pleroma.social/pleroma/pleroma/-/jobs/226602/artifacts/download?file_type=archive&#39;  -o /tmp/pleroma.zip 
 unzip /tmp/pleroma.zip -d /tmp/&#34;
-
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
-</code></pre></div></li>
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback></code></pre></div></li>
 </ul>
 <p>接下来的安装方式可以完全参考suica的教程了。如果我的数据库恢复没有失败，我的步骤就会参考版本回滚的那个教程……但……是……(⋟﹏⋞)</p>
 <br>
 <h1 id=之前的问题>之前的问题</h1>
 <h2 id=pleroma新版本有列表功能了>pleroma新版本有列表功能了</h2>
 <p>当我升级到2.5后，发现了新版本已经有列表分类功能，所以第一个问题就解决了，我暂时没有兴趣去装别的前端了。不过如果要自己动手做pleroma的主题，还是要装pleroma-fe的前端。</p>
-<br>
 <h2 id=混乱时间线>混乱时间线</h2>
 <p>这个问题放到末尾写……一些痛苦回忆来辽</p>
 <p>在一切开始之前，我看了那两个相似报错，我开始猜测时间线时好时坏，是不是和我的1G小内存有关系。

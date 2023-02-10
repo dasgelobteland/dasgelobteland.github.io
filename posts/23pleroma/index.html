@@ -1,0 +1,286 @@
+<!doctype html><html lang=en>
+<head>
+<meta charset=utf-8>
+<meta http-equiv=x-ua-compatible content="IE=edge,chrome=1">
+<meta name=viewport content="width=device-width,initial-scale=1">
+<meta name=author content="VarKai">
+<title>我的pleroma检修笔记1 ｜ 执痴</title>
+<meta name=description content="运行pleroma一年后的debug、数据备份和版本升级。
+">
+<meta name=keywords content>
+<link rel="shortcut icon" href=https://dasgelobteland.github.io/images/favicon.ico>
+<link rel=stylesheet type=text/css media=screen href=https://dasgelobteland.github.io/css/normalize.css>
+<link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/animate.css@4.1.0/animate.min.css>
+<link rel=stylesheet type=text/css media=screen href=https://dasgelobteland.github.io/css/zozo.css>
+<link rel=stylesheet type=text/css media=screen href=https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css>
+<link rel=stylesheet type=text/css media=screen href=https://dasgelobteland.github.io/css/highlight.css>
+</head>
+<body>
+<div class="main animate__animated animate__fadeInDown">
+<div class="nav_container animated fadeInDown">
+<div class=site_nav id=site_nav>
+<ul>
+<li>
+<a href=/>Home</a>
+</li>
+<li>
+<a href=/posts/>Archive</a>
+</li>
+<li>
+<a href=/tags/>Tags</a>
+</li>
+<li>
+<a href=/about/>About</a>
+</li>
+<li>
+<a href=/friend/>Friend</a>
+</li>
+</ul>
+</div>
+<div class=menu_icon>
+<a id=menu_icon><i class=ri-menu-line></i></a>
+</div>
+</div>
+<div class="header animated fadeInDown">
+<div class=site_title_container>
+<div class=site_title>
+<h1>
+<a href=https://dasgelobteland.github.io/>
+<span>执痴</span>
+</a>
+</h1>
+</div>
+<div class=description>
+<p class=sub_title>未经审视的人生不值得过。</p>
+<div class=my_socials>
+<a href=%20 title=github target=_blank><i class=ri-github-fill></i></a>
+<a href=https://dasgelobteland.github.io/index.xml type=application/rss+xml title=rss target=_blank><i class=ri-rss-fill></i></a>
+</div>
+</div>
+</div>
+</div>
+<div class=content>
+<div class=post_page>
+<div class="post animate__animated animate__fadeInDown">
+<div class="post_title post_detail_title">
+<h2><a href=/posts/23pleroma/>我的pleroma检修笔记1</a></h2>
+<span class=date>2023.02.10</span>
+</div>
+<div class="post_content markdown"><p>运行pleroma一年后的debug、数据备份和版本升级。</p>
+<h1 id=缘起>缘起</h1>
+<p>pleroma在我租的那台1G 内存，25GB的小vps里运行一年了，在使用中逐渐出现一些问题和新的需求。</p>
+<br>
+<h2 id=最想要解决的两个问题>最想要解决的两个问题：</h2>
+<ul>
+<li>
+<p>我关注的fedi用户数量超过了150，时间线上消息太多看不过来，需要进行列表分类，而我的低版本2.4pleroma没有列表功能</p>
+<ul>
+<li>已知 pleroma的前端之一soapbox可以做列表，我要去学一学怎么装这个前端吗？但又看过soapbox与pleroma开发者们发生的争执，所以我不是很想学。</li>
+</ul>
+</li>
+<li>
+<p>从去年下半年开始，时间线频繁出现了刷不出嘟友最新嘟文、时间线乱序、直接与某些嘟友实例断联的问题，我一开始是用重启解决 <code>systemctl restart pleroma.service</code>，每次重启后短暂恢复了一下，但过了几天又是同样的问题。</p>
+</li>
+</ul>
+<br>
+<h2 id=不得不学的基本操作>不得不学的基本操作</h2>
+<ul>
+<li>pleroma数据备份 和 版本升级
+<ul>
+<li>一直拖着不学这几个操作的原因之一，是我之前还不太懂怎么备份，担心操作不当会把整个站炸掉，所以能拖就拖，拖到了今天。</li>
+<li>前段时间，我的pleroma实例彻底与某些实例断联，让我猜想是不是我站版本太低了（otz努力赶上大部队），其次考虑到以后可能要换vps，不可能一直不学备份。只能硬着头皮动手学了。</li>
+</ul>
+</li>
+</ul>
+<br>
+<h2 id=参考资料>参考资料</h2>
+<p>基于上面的问题和需求，我去搜了一些相关的资料，发现中文pleroma教程越来越多了( •̀ ω •́ )y
+以下是各种参考资料：</p>
+<p><strong>（非常感谢大家的pleroma相关讨论和各种教程，给了我很多启发和帮助。只有多交流才会有进步的可能~）</strong></p>
+<p><a href=https://blog.debula.ml/index.php/archives/5/>https://blog.debula.ml/index.php/archives/5/</a> 【数据备份、版本升级、前端 等】
+<a href=https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/>https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/</a> 【数据备份】
+<a href=https://seviche.cc/2023-01-22-backup/>https://seviche.cc/2023-01-22-backup/</a> 【数据备份】</p>
+<p><a href=https://dabr.ca/notice/AQhdqry35qWK6cVaBU>https://dabr.ca/notice/AQhdqry35qWK6cVaBU</a> 【相似的报错1】
+<a href=https://dabr.ca/notice/AQfGjf2GH0kYH3XE9I>https://dabr.ca/notice/AQfGjf2GH0kYH3XE9I</a> 【相似的报错2】</p>
+<br>
+<h1 id=思路>思路</h1>
+<p>说起来，去年的pleroma安装完全是复制粘贴suica写好的教程，我对于PostgreSQL、nginx这些概念完全不懂。而今年要思考怎么修好实例，就得自己提出一些猜测，自己去学着验证。去年是简单地理解概念，今年要求更深入地理解陌生概念，还得额外面临一些不确定性进行试错和快速复原，所以学习的成本和难度增加了。</p>
+<br>
+<h2 id=备份>备份</h2>
+<br>
+<h3 id=pleroma单个账号的数据备份>pleroma单个账号的数据备份</h3>
+<p>只要该pleroma实例开通了邮件功能，就可以使用kana以前写的脚本进行备份，亲测有用。</p>
+<ul>
+<li>火狐 安装 Tampermonkey后，访问 <a href=https://greasyfork.org/en/scripts/442817-pleroma-backup>https://greasyfork.org/en/scripts/442817-pleroma-backup</a> 安装该脚本</li>
+<li>登录pleroma ，进入pleroma用户的个人主页</li>
+<li>使用web开发者工具，在控制台 输入<code>backupPleroma()</code>后会自动生成一个zip的下载链接</li>
+<li>下载到本地，解压后即可查看该用户的单独账号数据（内含书签、喜欢、嘟文资料等）</li>
+</ul>
+<br>
+<h3 id=pleroma-全站-数据备份-的失败回忆>pleroma 全站 数据备份 的失败回忆</h3>
+<p>上面参考的前三篇博文已经对pleroma 需要备份什么，如何备份讲的非常清楚了。可惜我的pleroma出现了磁盘爆满的情况，以至于我无法使用<code>pg_dump</code> 备份，也无法再安装任何工具辅助备份。于是我使用了官方文档中本地备份https://docs-develop.pleroma.social/backend/administration/backup/，我只备份了<code>pleroma.pgdump</code>，没有找到<code>config/prod.secret.exs</code>，也没有找到<code>config/setup_db.psql</code>。而后来在恢复数据库的时候，发现<code>pleroma.pgdump</code>完全不起作用，所以整个站过去的数据全部没 了 （摇手）</p>
+<p>默默流泪，点一支蜡烛🕯</p>
+<p>到现在为止我也不明白，为什么备份的数据库不起作用，准备过段时间再试一试吧。数据库恢复失败之后，约等于我的旧站炸了，我心如死灰地开始了重装升级。</p>
+<br>
+<h2 id=重装升级>重装升级</h2>
+<p>如果站没有炸，我可能会试一试用 <a href=https://docs-develop.pleroma.social/backend/administration/updating/>https://docs-develop.pleroma.social/backend/administration/updating/</a> 里面的 OTP installations 命令来升级pleroma （下次再试吧）</p>
+<ul>
+<li>
+<p>可惜数据库已经被我搞得一塌糊涂，所以我采取了 彻底删除 ，再 重新安装pleroma新版本的思路来升级</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 在root用户下 停止pleroma服务
+systemctl stop pleroma
+
+# 禁用pleroma 
+systemctl disable pleroma
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
+</code></pre></div></li>
+<li>
+<p>删除安装过程中创建的pleroma、nginx 和 systemd文件和文件夹（以下只是我删除的路径，仅作参考）
+/var/lib/pleroma
+/opt/pleroma
+/etc/pleroma</p>
+<p>/etc/nginx/sites-available
+/etc/nginx/sites-enabled</p>
+<p>/etc/systemd/system/pleroma.service</p>
+<p>如果没删干净，在重新安装时候会出现相关报错，只需要根据报错再去删掉就行
+如果安装成功后，输入pleroma实例网址，却出现页面空白，浏览器开发工具显示是某些js加载失败，或者出现net::ERR_HTTP2_PROTOCOL_ERROR的报错，极大可能是nginx出了问题，可以卸载整个nginx再重装。</p>
+<p>如果担心nginx没删干净，也直接卸载再重装。</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 依然是root用户
+
+
+# 删除除/etc/nginx 配置文件外的所有文件
+sudo apt-get remove nginx
+
+# 删除nginx配置文件
+sudo apt-get purge nginx
+
+# 删除安装nginx时安装的依赖包
+sudo apt-get autoremove
+
+# 重装
+apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
+
+
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
+
+</code></pre></div></li>
+<li>
+<p>重启 nginx<code>systemctl reload nginx</code></p>
+</li>
+<li>
+<p>删除数据库和数据库用户 &lt;pleroma_db>替换为你的pleroma数据库名称，默认名称就是pleroma，如果不是，可以通过psql命令查询</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>sudo -Hu postgres psql -c &#39;DROP DATABASE &lt;pleroma_db&gt;;&#39;;
+
+sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;
+
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
+
+</code></pre></div></li>
+<li>
+<p>删除系统用户 <code>userdel pleroma</code></p>
+<ul>
+<li>可能会出现这样的报错提醒：userdel: user vivek is currently used by process 749 error and fix on Linux</li>
+<li>于是参考https://www.cyberciti.biz/faq/userdel-user-vivek-is-currently-used-by-process-749-error-and-fix-on-linux/</li>
+</ul>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 停止运行
+kill -15 749（749替换为对应出现的数字）
+
+# 重新尝试删除
+userdel pleroma
+
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。
+
+
+</code></pre></div></li>
+<li>
+<p>重新按照suica的教程进行otp 方式的安装，只不过这一次的安装包地址我就换成了最新的pleroma2.5版本</p>
+</li>
+<li>
+<p>安装包地址请参考https://blog.debula.ml/index.php/archives/5/#1.%E7%A4%BE%E4%BA%A4%E7%BD%91%E7%BB%9C%EF%BC%9APleroma 里面的寻找方式，我使用的也是amd64</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 下载安装 Pleroma 2.5 所需的文件到 /tmp 文件夹并解压
+
+su pleroma -s $SHELL -lc &#34;curl &#39;https://git.pleroma.social/pleroma/pleroma/-/jobs/226602/artifacts/download?file_type=archive&#39;  -o /tmp/pleroma.zip 
+unzip /tmp/pleroma.zip -d /tmp/&#34;
+
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
+</code></pre></div></li>
+</ul>
+<p>接下来的安装方式可以完全参考suica的教程了。如果我的数据库恢复没有失败，我的步骤就会参考版本回滚的那个教程……但……是……(⋟﹏⋞)</p>
+<br>
+<h1 id=之前的问题>之前的问题</h1>
+<br>
+<h2 id=pleroma新版本有列表功能了>pleroma新版本有列表功能了</h2>
+<p>当我升级到2.5后，发现了新版本已经有列表分类功能，所以第一个问题就解决了，我暂时没有兴趣去装别的前端了。不过如果要自己动手做pleroma的主题，还是要装pleroma-fe的前端。</p>
+<br>
+<h2 id=混乱时间线>混乱时间线</h2>
+<p>这个问题放到末尾写……一些痛苦回忆来辽</p>
+<p>在一切开始之前，我看了那两个相似报错，我开始猜测时间线时好时坏，是不是和我的1G小内存有关系。
+我通过查询命令<code>free -h</code>记录了一些内存变化：</p>
+<p>时间线卡死时：</p>
+<pre><code>root@XXXXXXXX:~# free -h
+              total        used        free      shared  buff/cache   available
+Mem:          987Mi       411Mi        75Mi       306Mi       500Mi       132Mi
+Swap:            0B          0B          0B
+</code></pre>
+<p>重启后，时间线变得丝滑了起来：</p>
+<pre><code>root@XXXXXXXX:~# free -h
+              total        used        free      shared  buff/cache   available
+Mem:          987Mi       393Mi       163Mi       299Mi       430Mi       195Mi
+Swap:            0B          0B          0B
+</code></pre>
+<p>于是我做了一些拯救1G内存的操作，感觉没啥用但有个安慰：</p>
+<p>在pleroma-fe 的settings - instance中，我把100调成了80……不知道能不能行</p>
+<p>Fed. incoming replies max depth
+100
+Max. depth of reply-to and reply activities fetching on incoming federation, to prevent out-of-memory situations while fetching very long threads. If set to <code>nil</code>, threads of any depth will be fetched. Lower this value if you experience out-of-memory crashes.</p>
+<p>做完这一切后，我突发奇想查一下我的数据库大小</p>
+<pre><code>root@vm367944:~# su - postgres
+postgres@vm367944:~$ psql
+
+postgres=# SELECT pg_size_pretty( pg_database_size('pleroma') );
+pg_size_pretty
+----------------
+ 19 GB
+(1 row)
+</code></pre>
+<p>(ˉ▽ˉ；)&mldr;为什么才用了一年我的个人小站会变成19GB啊！我的vps才25个GB！19GB的增长量太惊人了，是不是这个影响了我的时间线呢？那我要清理我的数据库，去翻翻官方文档有没有什么好用的命令https://docs-develop.pleroma.social/backend/administration/CLI_tasks/database/</p>
+<p>于是我立刻执行了 Prune old remote posts from the database 和 Full</p>
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>./bin/pleroma_ctl database prune_objects [option ...]
+
+./bin/pleroma_ctl database vacuum full
+
+</code></pre></div><p>然后就是疯狂报错 和 被撑爆的25G硬盘，甚至让我的PostgreSQL都无法执行简单的命令。。最后我只能本地备份数据库，再去升级pleroma，结果升级结束时发现数据库根本恢复不了，于是开始了彻底删除——多次重装的循环。</p>
+<p>很多东西都没怎么想明白，先写下来，这一次的debug就到这里。</p></div>
+<div class=post_footer>
+<div class=meta>
+<div class=info>
+<span class="field tags">
+<i class=ri-stack-line></i>
+<a href=https://dasgelobteland.github.io/tags/%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/>学习笔记</a>
+</span>
+</div>
+</div>
+</div>
+</div>
+<div class=doc_comments></div>
+</div>
+</div>
+</div>
+<a id=back_to_top href=# class=back_to_top><i class=ri-arrow-up-s-line></i></a>
+<footer class=footer>
+<div class=powered_by>
+<a href=https://varkai.com>Designed by VarKai,</a>
+<a href=http://www.gohugo.io/>Proudly published with Hugo</a>
+</div>
+<div class=footer_slogan>
+<span></span>
+</div>
+</footer>
+<script src=https://dasgelobteland.github.io/js/jquery-3.5.1.min.js></script>
+<link href=https://dasgelobteland.github.io/css/fancybox.min.css rel=stylesheet>
+<script src=https://dasgelobteland.github.io/js/fancybox.min.js></script>
+<script src=https://dasgelobteland.github.io/js/zozo.js></script>
+<script type=text/javascript async src="https://cdn.bootcss.com/mathjax/2.7.5/MathJax.js?config=TeX-AMS-MML_HTMLorMML">MathJax.Hub.Config({tex2jax:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['[[',']]']],processEscapes:!0,processEnvironments:!0,skipTags:['script','noscript','style','textarea','pre'],TeX:{equationNumbers:{autoNumber:"AMS"},extensions:["AMSmath.js","AMSsymbols.js"]}}}),MathJax.Hub.Queue(function(){var b=MathJax.Hub.getAllJax(),a;for(a=0;a<b.length;a+=1)b[a].SourceElement().parentNode.className+=' has-jax'})</script>
+<style>code.has-jax{font:inherit;font-size:100%;background:inherit;border:inherit;color:#515151}</style>
+</body>
+</html>

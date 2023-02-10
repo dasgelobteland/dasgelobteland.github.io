@@ -67,9 +67,7 @@
 <span class=date>2023.02.10</span>
 </div>
 <div class="post_content markdown"><p>运行pleroma一年后的debug、数据备份和版本升级。</p>
-<h1 id=缘起>缘起</h1>
 <p>pleroma在我租的那台1G 内存，25GB的小vps里运行一年了，在使用中逐渐出现一些问题和新的需求。</p>
-<br>
 <h2 id=最想要解决的两个问题>最想要解决的两个问题：</h2>
 <ul>
 <li>
@@ -82,7 +80,6 @@
 <p>从去年下半年开始，时间线频繁出现了刷不出嘟友最新嘟文、时间线乱序、直接与某些嘟友实例断联的问题，我一开始是用重启解决 <code>systemctl restart pleroma.service</code>，每次重启后短暂恢复了一下，但过了几天又是同样的问题。</p>
 </li>
 </ul>
-<br>
 <h2 id=不得不学的基本操作>不得不学的基本操作</h2>
 <ul>
 <li>pleroma数据备份 和 版本升级
@@ -92,22 +89,18 @@
 </ul>
 </li>
 </ul>
-<br>
 <h2 id=参考资料>参考资料</h2>
-<p>基于上面的问题和需求，我去搜了一些相关的资料，发现中文pleroma教程越来越多了( •̀ ω •́ )y
+<p>基于上面的问题和需求，我去搜了一些相关的资料，发现中文pleroma教程越来越多了( •̀ ω •́ )y<br>
 以下是各种参考资料：</p>
 <p><strong>（非常感谢大家的pleroma相关讨论和各种教程，给了我很多启发和帮助。只有多交流才会有进步的可能~）</strong></p>
-<p><a href=https://blog.debula.ml/index.php/archives/5/>https://blog.debula.ml/index.php/archives/5/</a> 【数据备份、版本升级、前端 等】
-<a href=https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/>https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/</a> 【数据备份】
+<p><a href=https://blog.debula.ml/index.php/archives/5/>https://blog.debula.ml/index.php/archives/5/</a> 【数据备份、版本升级、前端 等】<br>
+<a href=https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/>https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/</a> 【数据备份】<br>
 <a href=https://seviche.cc/2023-01-22-backup/>https://seviche.cc/2023-01-22-backup/</a> 【数据备份】</p>
-<p><a href=https://dabr.ca/notice/AQhdqry35qWK6cVaBU>https://dabr.ca/notice/AQhdqry35qWK6cVaBU</a> 【相似的报错1】
+<p><a href=https://dabr.ca/notice/AQhdqry35qWK6cVaBU>https://dabr.ca/notice/AQhdqry35qWK6cVaBU</a> 【相似的报错1】<br>
 <a href=https://dabr.ca/notice/AQfGjf2GH0kYH3XE9I>https://dabr.ca/notice/AQfGjf2GH0kYH3XE9I</a> 【相似的报错2】</p>
-<br>
 <h1 id=思路>思路</h1>
 <p>说起来，去年的pleroma安装完全是复制粘贴suica写好的教程，我对于PostgreSQL、nginx这些概念完全不懂。而今年要思考怎么修好实例，就得自己提出一些猜测，自己去学着验证。去年是简单地理解概念，今年要求更深入地理解陌生概念，还得额外面临一些不确定性进行试错和快速复原，所以学习的成本和难度增加了。</p>
-<br>
 <h2 id=备份>备份</h2>
-<br>
 <h3 id=pleroma单个账号的数据备份>pleroma单个账号的数据备份</h3>
 <p>只要该pleroma实例开通了邮件功能，就可以使用kana以前写的脚本进行备份，亲测有用。</p>
 <ul>
@@ -118,10 +111,10 @@
 </ul>
 <br>
 <h3 id=pleroma-全站-数据备份-的失败回忆>pleroma 全站 数据备份 的失败回忆</h3>
-<p>上面参考的前三篇博文已经对pleroma 需要备份什么，如何备份讲的非常清楚了。可惜我的pleroma出现了磁盘爆满的情况，以至于我无法使用<code>pg_dump</code> 备份，也无法再安装任何工具辅助备份。于是我使用了官方文档中本地备份https://docs-develop.pleroma.social/backend/administration/backup/，我只备份了<code>pleroma.pgdump</code>，没有找到<code>config/prod.secret.exs</code>，也没有找到<code>config/setup_db.psql</code>。而后来在恢复数据库的时候，发现<code>pleroma.pgdump</code>完全不起作用，所以整个站过去的数据全部没 了 （摇手）</p>
+<p>上面参考的前三篇博文已经对pleroma 需要备份什么，如何备份讲的非常清楚了。可惜我的pleroma出现了磁盘爆满的情况，以至于我无法使用<code>pg_dump</code> 备份，也无法再安装任何工具辅助备份。于是我使用了官方文档中本地备份 <a href=https://docs-develop.pleroma.social/backend/administration/backup/>https://docs-develop.pleroma.social/backend/administration/backup/</a></p>
+<p>我只备份了<code>pleroma.pgdump</code>，没有找到<code>config/prod.secret.exs</code>，也没有找到<code>config/setup_db.psql</code>。而后来在恢复数据库的时候，发现<code>pleroma.pgdump</code>完全不起作用，所以整个站过去的数据全部没 了 （摇手）</p>
 <p>默默流泪，点一支蜡烛🕯</p>
 <p>到现在为止我也不明白，为什么备份的数据库不起作用，准备过段时间再试一试吧。数据库恢复失败之后，约等于我的旧站炸了，我心如死灰地开始了重装升级。</p>
-<br>
 <h2 id=重装升级>重装升级</h2>
 <p>如果站没有炸，我可能会试一试用 <a href=https://docs-develop.pleroma.social/backend/administration/updating/>https://docs-develop.pleroma.social/backend/administration/updating/</a> 里面的 OTP installations 命令来升级pleroma （下次再试吧）</p>
 <ul>
@@ -129,26 +122,22 @@
 <p>可惜数据库已经被我搞得一塌糊涂，所以我采取了 彻底删除 ，再 重新安装pleroma新版本的思路来升级</p>
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 在root用户下 停止pleroma服务
 systemctl stop pleroma
-
 # 禁用pleroma 
 systemctl disable pleroma
 </code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
 </code></pre></div></li>
 <li>
-<p>删除安装过程中创建的pleroma、nginx 和 systemd文件和文件夹（以下只是我删除的路径，仅作参考）
-/var/lib/pleroma
-/opt/pleroma
+<p>删除安装过程中创建的pleroma、nginx 和 systemd文件和文件夹（以下只是我删除的路径，仅作参考）</p>
+<p>/var/lib/pleroma<br>
+/opt/pleroma<br>
 /etc/pleroma</p>
-<p>/etc/nginx/sites-available
+<p>/etc/nginx/sites-available<br>
 /etc/nginx/sites-enabled</p>
 <p>/etc/systemd/system/pleroma.service</p>
 <p>如果没删干净，在重新安装时候会出现相关报错，只需要根据报错再去删掉就行
 如果安装成功后，输入pleroma实例网址，却出现页面空白，浏览器开发工具显示是某些js加载失败，或者出现net::ERR_HTTP2_PROTOCOL_ERROR的报错，极大可能是nginx出了问题，可以卸载整个nginx再重装。</p>
 <p>如果担心nginx没删干净，也直接卸载再重装。</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 依然是root用户
-
-
-# 删除除/etc/nginx 配置文件外的所有文件
+<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 删除除/etc/nginx 配置文件外的所有文件
 sudo apt-get remove nginx
 
 # 删除nginx配置文件
@@ -160,9 +149,7 @@ sudo apt-get autoremove
 # 重装
 apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
 
-
 </code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
-
 </code></pre></div></li>
 <li>
 <p>重启 nginx<code>systemctl reload nginx</code></p>
@@ -174,7 +161,6 @@ apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
 sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;
 
 </code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
-
 </code></pre></div></li>
 <li>
 <p>删除系统用户 <code>userdel pleroma</code></p>
@@ -187,8 +173,8 @@ kill -15 749（749替换为对应出现的数字）
 
 # 重新尝试删除
 userdel pleroma
-
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。
+</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
+我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。
 
 
 </code></pre></div></li>
@@ -208,7 +194,6 @@ unzip /tmp/pleroma.zip -d /tmp/&#34;
 <p>接下来的安装方式可以完全参考suica的教程了。如果我的数据库恢复没有失败，我的步骤就会参考版本回滚的那个教程……但……是……(⋟﹏⋞)</p>
 <br>
 <h1 id=之前的问题>之前的问题</h1>
-<br>
 <h2 id=pleroma新版本有列表功能了>pleroma新版本有列表功能了</h2>
 <p>当我升级到2.5后，发现了新版本已经有列表分类功能，所以第一个问题就解决了，我暂时没有兴趣去装别的前端了。不过如果要自己动手做pleroma的主题，还是要装pleroma-fe的前端。</p>
 <br>

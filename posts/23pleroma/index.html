@@ -123,8 +123,8 @@
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 在root用户下 停止pleroma服务
 systemctl stop pleroma
 # 禁用pleroma 
-systemctl disable pleroma
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback></code></pre></div></li>
+systemctl disable pleroma```
+</code></pre></div></li>
 <li>
 <p>删除安装过程中创建的pleroma、nginx 和 systemd文件和文件夹（以下只是我删除的路径，仅作参考）</p>
 <p>/var/lib/pleroma<br>
@@ -146,8 +146,8 @@ sudo apt-get purge nginx
 sudo apt-get autoremove
 
 # 重装
-apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback></code></pre></div></li>
+apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx```
+</code></pre></div></li>
 <li>
 <p>重启 nginx<code>systemctl reload nginx</code></p>
 </li>
@@ -155,8 +155,8 @@ apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
 <p>删除数据库和数据库用户 &lt;pleroma_db>替换为你的pleroma数据库名称，默认名称就是pleroma，如果不是，可以通过psql命令查询</p>
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>sudo -Hu postgres psql -c &#39;DROP DATABASE &lt;pleroma_db&gt;;&#39;;
 
-sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback></code></pre></div></li>
+sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;```
+</code></pre></div></li>
 <li>
 <p>删除系统用户 <code>userdel pleroma</code></p>
 <ul>
@@ -167,11 +167,12 @@ sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;
 kill -15 749（749替换为对应出现的数字）
 
 # 重新尝试删除
-userdel pleroma
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>
- - 我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。
+userdel pleroma```
 
 </code></pre></div></li>
+<li>
+<p>我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。</p>
+</li>
 <li>
 <p>重新按照suica的教程进行otp 方式的安装，只不过这一次的安装包地址我就换成了最新的pleroma2.5版本</p>
 </li>
@@ -180,8 +181,8 @@ userdel pleroma
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 下载安装 Pleroma 2.5 所需的文件到 /tmp 文件夹并解压
 
 su pleroma -s $SHELL -lc &#34;curl &#39;https://git.pleroma.social/pleroma/pleroma/-/jobs/226602/artifacts/download?file_type=archive&#39;  -o /tmp/pleroma.zip 
-unzip /tmp/pleroma.zip -d /tmp/&#34;
-</code></pre></div><div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback></code></pre></div></li>
+unzip /tmp/pleroma.zip -d /tmp/&#34;```
+</code></pre></div></li>
 </ul>
 <p>接下来的安装方式可以完全参考suica的教程了。如果我的数据库恢复没有失败，我的步骤就会参考版本回滚的那个教程……但……是……(⋟﹏⋞)</p>
 <br>

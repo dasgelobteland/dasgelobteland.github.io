@@ -123,7 +123,7 @@
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 在root用户下 停止pleroma服务
 systemctl stop pleroma
 # 禁用pleroma 
-systemctl disable pleroma```
+systemctl disable pleroma
 </code></pre></div></li>
 <li>
 <p>删除安装过程中创建的pleroma、nginx 和 systemd文件和文件夹（以下只是我删除的路径，仅作参考）</p>
@@ -155,7 +155,7 @@ apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx```
 <p>删除数据库和数据库用户 &lt;pleroma_db>替换为你的pleroma数据库名称，默认名称就是pleroma，如果不是，可以通过psql命令查询</p>
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>sudo -Hu postgres psql -c &#39;DROP DATABASE &lt;pleroma_db&gt;;&#39;;
 
-sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;```
+sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;
 </code></pre></div></li>
 <li>
 <p>删除系统用户 <code>userdel pleroma</code></p>
@@ -167,7 +167,7 @@ sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;```
 kill -15 749（749替换为对应出现的数字）
 
 # 重新尝试删除
-userdel pleroma```
+userdel pleroma
 
 </code></pre></div></li>
 <li>
@@ -181,7 +181,7 @@ userdel pleroma```
 <div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 下载安装 Pleroma 2.5 所需的文件到 /tmp 文件夹并解压
 
 su pleroma -s $SHELL -lc &#34;curl &#39;https://git.pleroma.social/pleroma/pleroma/-/jobs/226602/artifacts/download?file_type=archive&#39;  -o /tmp/pleroma.zip 
-unzip /tmp/pleroma.zip -d /tmp/&#34;```
+unzip /tmp/pleroma.zip -d /tmp/&#34;
 </code></pre></div></li>
 </ul>
 <p>接下来的安装方式可以完全参考suica的教程了。如果我的数据库恢复没有失败，我的步骤就会参考版本回滚的那个教程……但……是……(⋟﹏⋞)</p>
@@ -211,7 +211,7 @@ Swap:            0B          0B          0B
 100
 Max. depth of reply-to and reply activities fetching on incoming federation, to prevent out-of-memory situations while fetching very long threads. If set to <code>nil</code>, threads of any depth will be fetched. Lower this value if you experience out-of-memory crashes.</p>
 <p>做完这一切后，我突发奇想查一下我的数据库大小</p>
-<pre><code>root@vm367944:~# su - postgres
+<pre><code>root@XXXXXXXX:~# su - postgres
 postgres@vm367944:~$ psql
 
 postgres=# SELECT pg_size_pretty( pg_database_size('pleroma') );

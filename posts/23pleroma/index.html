@@ -100,6 +100,8 @@
 <p><strong>（非常感谢大家的pleroma相关讨论和各种教程，给了我很多启发和帮助。只有多交流才会有进步的可能~）</strong></p>
 <h1 id=思路>思路</h1>
 <p>说起来，去年的pleroma安装完全是复制粘贴suica写好的教程，我对于PostgreSQL、nginx这些概念完全不懂。而今年要思考怎么修好实例，就得自己提出一些猜测，自己去学着验证。去年是简单地理解概念，今年要求更深入地理解陌生概念，还得额外面临一些不确定性进行试错和快速复原，所以学习的成本和难度增加了。</p>
+<p>最后，我的pleroma检修思路是：先备份，再检查内存和储存的情况，再针对性地解决问题，问题解决失败了，于是重装升级。</p>
+<p>这篇博文按这个顺序记录了全过程。</p>
 <h2 id=备份>备份</h2>
 <h3 id=pleroma单个账号的数据备份>pleroma单个账号的数据备份</h3>
 <p>只要该pleroma实例开通了邮件功能，就可以使用kana以前写的脚本进行备份，亲测有用。</p>
@@ -110,89 +112,9 @@
 <li>下载到本地，解压后即可查看该用户的单独账号数据（内含书签、喜欢、嘟文资料等）</li>
 </ul>
 <br>
-<h3 id=pleroma-全站-数据备份-的失败回忆>pleroma 全站 数据备份 的失败回忆</h3>
-<p>上面参考的前三篇博文已经对pleroma 需要备份什么，如何备份讲的非常清楚了。可惜我的pleroma出现了磁盘爆满的情况，以至于我无法使用<code>pg_dump</code> 备份，也无法再安装任何工具辅助备份。于是我使用了官方文档中本地备份 <a href=https://docs-develop.pleroma.social/backend/administration/backup/>https://docs-develop.pleroma.social/backend/administration/backup/</a></p>
-<p>我只备份了<code>pleroma.pgdump</code>，没有找到<code>config/prod.secret.exs</code>，也没有找到<code>config/setup_db.psql</code>。而后来在恢复数据库的时候，发现<code>pleroma.pgdump</code>完全不起作用，所以整个站过去的数据全部没 了 （摇手）</p>
-<p>默默流泪，点一支蜡烛🕯</p>
-<p>到现在为止我也不明白，为什么备份的数据库不起作用，准备过段时间再试一试吧。数据库恢复失败之后，约等于我的旧站炸了，我心如死灰地开始了重装升级。</p>
-<h2 id=重装升级>重装升级</h2>
-<p>如果站没有炸，我可能会试一试用 <a href=https://docs-develop.pleroma.social/backend/administration/updating/>https://docs-develop.pleroma.social/backend/administration/updating/</a> 里面的 OTP installations 命令来升级pleroma （下次再试吧）</p>
-<ul>
-<li>
-<p>可惜数据库已经被我搞得一塌糊涂，所以我采取了 彻底删除 ，再 重新安装pleroma新版本的思路来升级</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 在root用户下 停止pleroma服务
-systemctl stop pleroma
-# 禁用pleroma 
-systemctl disable pleroma
-</code></pre></div></li>
-<li>
-<p>删除安装过程中创建的pleroma、nginx 和 systemd文件和文件夹（以下只是我删除的路径，仅作参考）</p>
-<p>/var/lib/pleroma<br>
-/opt/pleroma<br>
-/etc/pleroma</p>
-<p>/etc/nginx/sites-available<br>
-/etc/nginx/sites-enabled</p>
-<p>/etc/systemd/system/pleroma.service</p>
-<p>如果没删干净，在重新安装时候会出现相关报错，只需要根据报错再去删掉就行
-如果安装成功后，输入pleroma实例网址，却出现页面空白，浏览器开发工具显示是某些js加载失败，或者出现net::ERR_HTTP2_PROTOCOL_ERROR的报错，极大可能是nginx出了问题，可以卸载整个nginx再重装。</p>
-<p>如果担心nginx没删干净，也直接卸载再重装。</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 删除除/etc/nginx 配置文件外的所有文件
-sudo apt-get remove nginx
-
-# 删除nginx配置文件
-sudo apt-get purge nginx
-
-# 删除安装nginx时安装的依赖包
-sudo apt-get autoremove
-
-# 重装
-apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
-</code></pre></div></li>
-<li>
-<p>重启 nginx<code>systemctl reload nginx</code></p>
-</li>
-<li>
-<p>删除数据库和数据库用户 &lt;pleroma_db>替换为你的pleroma数据库名称，默认名称就是pleroma，如果不是，可以通过psql命令查询</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>sudo -Hu postgres psql -c &#39;DROP DATABASE &lt;pleroma_db&gt;;&#39;;
-
-sudo -Hu postgres psql -c &#39;DROP USER &lt;pleroma_db&gt;;&#39;
-</code></pre></div></li>
-<li>
-<p>删除系统用户 <code>userdel pleroma</code></p>
-<ul>
-<li>可能会出现这样的报错提醒：userdel: user vivek is currently used by process 749 error and fix on Linux</li>
-<li>于是参考https://www.cyberciti.biz/faq/userdel-user-vivek-is-currently-used-by-process-749-error-and-fix-on-linux/</li>
-</ul>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 停止运行
-kill -15 749（749替换为对应出现的数字）
-
-# 重新尝试删除
-userdel pleroma
-
-</code></pre></div></li>
-<li>
-<p>我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。</p>
-</li>
-<li>
-<p>重新按照suica的教程进行otp 方式的安装，只不过这一次的安装包地址我就换成了最新的pleroma2.5版本</p>
-</li>
-<li>
-<p>安装包地址请参考https://blog.debula.ml/index.php/archives/5/#1.%E7%A4%BE%E4%BA%A4%E7%BD%91%E7%BB%9C%EF%BC%9APleroma 里面的寻找方式，我使用的也是amd64</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback># 下载安装 Pleroma 2.5 所需的文件到 /tmp 文件夹并解压
-
-su pleroma -s $SHELL -lc &#34;curl &#39;https://git.pleroma.social/pleroma/pleroma/-/jobs/226602/artifacts/download?file_type=archive&#39;  -o /tmp/pleroma.zip 
-unzip /tmp/pleroma.zip -d /tmp/&#34;
-</code></pre></div></li>
-</ul>
-<p>接下来的安装方式可以完全参考suica的教程了。如果我的数据库恢复没有失败，我的步骤就会参考版本回滚的那个教程……但……是……(⋟﹏⋞)</p>
-<br>
-<h1 id=之前的问题>之前的问题</h1>
-<h2 id=pleroma新版本有列表功能了>pleroma新版本有列表功能了</h2>
-<p>当我升级到2.5后，发现了新版本已经有列表分类功能，所以第一个问题就解决了，我暂时没有兴趣去装别的前端了。不过如果要自己动手做pleroma的主题，还是要装pleroma-fe的前端。</p>
-<h2 id=混乱时间线>混乱时间线</h2>
-<p>这个问题放到末尾写……一些痛苦回忆来辽</p>
-<p>在一切开始之前，我看了那两个相似报错，我开始猜测时间线时好时坏，是不是和我的1G小内存有关系。
-我通过查询命令<code>free -h</code>记录了一些内存变化：</p>
+<h2 id=混乱时间线的原因探究>混乱时间线的原因探究</h2>
+<p>看了那两个相似报错后，我开始猜测时间线时好时坏是否和vps的1G小内存有关系。</p>
+<p>于是通过查询命令<code>free -h</code>记录了一些内存变化：</p>
 <p>时间线卡死时：</p>
 <pre><code>root@XXXXXXXX:~# free -h
               total        used        free      shared  buff/cache   available
@@ -206,11 +128,11 @@ Mem:          987Mi       393Mi       163Mi       299Mi       430Mi       195Mi
 Swap:            0B          0B          0B
 </code></pre>
 <p>于是我做了一些拯救1G内存的操作，感觉没啥用但有个安慰：</p>
-<p>在pleroma-fe 的settings - instance中，我把100调成了80……不知道能不能行</p>
+<p>在pleroma-fe 的settings - instance中，我把100调成了80</p>
 <p>Fed. incoming replies max depth
 100
 Max. depth of reply-to and reply activities fetching on incoming federation, to prevent out-of-memory situations while fetching very long threads. If set to <code>nil</code>, threads of any depth will be fetched. Lower this value if you experience out-of-memory crashes.</p>
-<p>做完这一切后，我突发奇想查一下我的数据库大小</p>
+<p>做完这一切后，我突发奇想，查了一下数据库大小</p>
 <pre><code>root@XXXXXXXX:~# su - postgres
 postgres@vm367944:~$ psql
 
@@ -220,14 +142,134 @@ pg_size_pretty
  19 GB
 (1 row)
 </code></pre>
-<p>(ˉ▽ˉ；)&mldr;为什么才用了一年我的个人小站会变成19GB啊！我的vps才25个GB！19GB的增长量太惊人了，是不是这个影响了我的时间线呢？那我要清理我的数据库，去翻翻官方文档有没有什么好用的命令https://docs-develop.pleroma.social/backend/administration/CLI_tasks/database/</p>
-<p>于是我立刻执行了 Prune old remote posts from the database 和 Full</p>
-<div class=highlight><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback>./bin/pleroma_ctl database prune_objects [option ...]
+<p>(ˉ▽ˉ；)&mldr;我的vps硬盘只有25GB，pleroma运行一年后就变成了19GB，而本站只有我一个人在用。我自己的嘟文绝对没有那么大，那么19GB到底是装了什么呢？我开始猜测，是不是pleroma缓存了大量的外站嘟文数据，而没有进行定期清理，才会导致数据库变得如此庞大。</p>
+<p>在清理数据库之前，我决定先备份数据库。我首先选用<code>pg_dump</code>进行备份，可惜并不顺利，出现了如下报错：</p>
+<pre><code># 暂停运行实例
+su pleroma -s $SHELL -lc &quot;./bin/pleroma stop&quot;
 
+# 创建存放数据库文件的文件夹并设置其所有者为用户 pleorma
+mkdir -p /p_backup/pleroma_b
+chown -R pleroma /p_backup
+
+# 用pg_dump备份
+postgres=# \! pg_dump pleroma -f /p_backup/pleroma_b/pleroma.pgdump
+
+# 报错来了
+pg_dump: [archiver] could not write to output file: No space left on device
+</code></pre>
+<p>没有硬盘空间了。于是我查了一下此刻的硬盘存储情况：</p>
+<pre><code>root@XXXXXXXX:~# df -h
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        26G   25G     0 100% /
+</code></pre>
+<p>我猜测新备份的pleroma.pgdump的数据大小已经超过了6GB，所以硬盘装不下了……于是我删除了新备份多次重试，始终报错空间不足。此刻，我并没有想到别的好办法。也没有去尝试备份到别的地方，我选择了备份到本地。可是，这时候我找到的pleroma.pgdump只有366MB大小，和我查到的19GB相去甚远，我找不到别的数据在哪里，于是我就只把这个366MB的文件下载到了本地。</p>
+<p>然后，我想，既然是硬盘空间不够才导致pg_dump无法备份，那我可不可以清理数据库之后，再进行备份呢？</p>
+<p>我在官方文档找到了如下命令：https://docs-develop.pleroma.social/backend/administration/CLI_tasks/database/</p>
+<pre><code>./bin/pleroma_ctl database prune_objects [option ...]
 ./bin/pleroma_ctl database vacuum full
+</code></pre>
+<p>如果我没有理解错误的话：第一个命令是清理缓存外站数据，但空出来的磁盘空间只有在执行第二个Full命令后才能生效。而我也看到了官方文档里面的警告，这两个命令都需要有足够的硬盘空间。如果运用失败了也可以取消命令（但它没写怎么取消）</p>
+<p>于是按照这个理解，我决定试一试，快速执行了上面两个命令。</p>
+<pre><code>root@XXXXXX:~# su pleroma -s $SHELL -lc &quot;./bin/pleroma_ctl database prune_objects &quot;
 
-</code></pre></div><p>然后就是疯狂报错 和 被撑爆的25G硬盘，甚至让我的PostgreSQL都无法执行简单的命令。。最后我只能本地备份数据库，再去升级pleroma，结果升级结束时发现数据库根本恢复不了，于是开始了彻底删除——多次重装的循环。</p>
-<p>很多东西都没怎么想明白，先写下来，这一次的debug就到这里。</p></div>
+12:59:45.282 [info]  Pruning objects older than 30 days
+
+13:01:38.217 [debug] QUERY ERROR source=&quot;objects&quot; db=112930.9ms queue=2.6ms idle=846.6ms
+DELETE FROM &quot;objects&quot; AS o0 WHERE (o0.&quot;data&quot;-&gt;'to' ? $1 OR o0.&quot;data&quot;-&gt;'cc' ? $2) AND (o0.&quot;inserted_at&quot; &lt; $3) AND (split_part(o0.&quot;data&quot;-&gt;&gt;'actor', '/', 3) != $4) [&quot;https://www.w3.org/ns/activitystreams#Public&quot;, &quot;https://www.w3.org/ns/activitystreams#Public&quot;, ~N[2023-01-09 09:59:45], &quot;dasgelobteland.art&quot;]==
+</code></pre>
+<p>** (DBConnection.ConnectionError) tcp recv: closed
+lib/ecto/adapters/sql.ex:760: Ecto.Adapters.SQL.raise_sql_call_error/1
+lib/ecto/adapters/sql.ex:693: Ecto.Adapters.SQL.execute/5
+lib/mix/tasks/pleroma/database.ex:97: Mix.Tasks.Pleroma.Database.run/1
+(stdlib 3.12.1) erl_eval.erl:680: :erl_eval.do_apply/6
+(elixir 1.10.3) lib/code.ex:341: Code.eval_string_with_error_handling/3</p>
+<pre><code># 显然出现了报错，但我已经看不懂了。我继续执行了FUll
+
+root@XXXXXX:~# su pleroma -s $SHELL -lc &quot;./bin/pleroma_ctl database vacuum full &quot;
+
+13:07:48.160 [info]  Runnning VACUUM FULL.
+
+13:07:48.164 [warn]  Re-packing your entire database may take a while and will consume extra disk space during the process.
+
+13:07:48.357 [debug] QUERY ERROR db=196.7ms queue=2.4ms idle=566.2ms
+vacuum full; []
+** (Postgrex.Error) ERROR 53100 (disk_full) could not extend file &quot;base/16385/780447&quot;: wrote only 4096 of 8192 bytes at block 823
+
+hint: Check free disk space.
+lib/ecto/adapters/sql.ex:760: Ecto.Adapters.SQL.raise_sql_call_error/1
+(stdlib 3.12.1) erl_eval.erl:680: :erl_eval.do_apply/6
+(elixir 1.10.3) lib/code.ex:341: Code.eval_string_with_error_handling/3
+</code></pre>
+<p>用完这两个命令之后，我知道硬盘空间已经装满了。我以为我能够通过重新删除来恢复硬盘空间，但我却没有找到对应的新增文件，再加上看不懂这些报错，我也不敢去乱删。</p>
+<p>此时我已经无法再使用任何工具辅助备份了，我手里只有本地下载的那个366MB的数据库了。而且由于硬盘已满，postgres也无法正常运行。</p>
+<p>我只好删除所有东西，开始重装，试着看能不能用这个366MB恢复点什么。</p>
+<h2 id=重装升级>重装升级</h2>
+<p>如果站没有炸，我可能会试一试用 <a href=https://docs-develop.pleroma.social/backend/administration/updating/>https://docs-develop.pleroma.social/backend/administration/updating/</a> 里面的 OTP installations 命令来升级pleroma （下次再试吧）</p>
+<p>可惜数据库已经被我搞得一塌糊涂，所以我采取了 彻底删除 ，再 重新安装pleroma新版本的思路来升级</p>
+<pre><code>```
+# 在root用户下 停止pleroma服务
+systemctl stop pleroma
+# 禁用pleroma 
+systemctl disable pleroma
+</code></pre>
+<p>删除安装过程中创建的pleroma、nginx 和 systemd文件和文件夹（以下只是我删除的路径，仅作参考）</p>
+<pre><code>/var/lib/pleroma  
+/opt/pleroma  
+/etc/pleroma  
+
+/etc/nginx/sites-available  
+/etc/nginx/sites-enabled  
+
+/etc/systemd/system/pleroma.service  
+
+如果没删干净，在重新安装时候会出现相关报错，只需要根据报错再去删掉就行
+如果安装成功后，输入pleroma实例网址，却出现页面空白，浏览器开发工具显示是某些js加载失败，或者出现net::ERR_HTTP2_PROTOCOL_ERROR的报错，极大可能是nginx出了问题，可以卸载整个nginx再重装。
+
+如果担心nginx没删干净，也直接卸载再重装。
+
+```
+# 删除除/etc/nginx 配置文件外的所有文件
+sudo apt-get remove nginx
+
+# 删除nginx配置文件
+sudo apt-get purge nginx
+
+# 删除安装nginx时安装的依赖包
+sudo apt-get autoremove
+
+# 重装
+apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
+</code></pre>
+<p>重启 nginx<code>systemctl reload nginx</code></p>
+<p>删除数据库和数据库用户 &lt;pleroma_db>替换为你的pleroma数据库名称，默认名称就是pleroma，如果不是，可以通过psql命令查询
+sudo -Hu postgres psql -c &lsquo;DROP DATABASE &lt;pleroma_db>;';</p>
+<pre><code>sudo -Hu postgres psql -c 'DROP USER &lt;pleroma_db&gt;;'
+</code></pre>
+<p>删除系统用户 <code>userdel pleroma</code></p>
+<p>可能会出现这样的报错提醒：userdel: user vivek is currently used by process 749 error and fix on Linux</p>
+<p>于是参考https://www.cyberciti.biz/faq/userdel-user-vivek-is-currently-used-by-process-749-error-and-fix-on-linux/</p>
+<pre><code># 停止运行
+kill -15 749（749替换为对应出现的数字）
+
+# 重新尝试删除
+userdel pleroma
+</code></pre>
+<p>我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。</p>
+<p>最后，重新按照suica的教程进行otp 方式的安装，只不过这一次的安装包地址我就换成了最新的pleroma2.5版本</p>
+<p>安装包地址请参考https://blog.debula.ml/index.php/archives/5/#1.%E7%A4%BE%E4%BA%A4%E7%BD%91%E7%BB%9C%EF%BC%9APleroma 里面的寻找方式，我使用的也是amd64</p>
+<pre><code># 下载安装 Pleroma 2.5 所需的文件到 /tmp 文件夹并解压
+
+su pleroma -s $SHELL -lc &quot;curl 'https://git.pleroma.social/pleroma/pleroma/-/jobs/226602/artifacts/download?file_type=archive'  -o /tmp/pleroma.zip 
+unzip /tmp/pleroma.zip -d /tmp/&quot;
+</code></pre>
+<p>接下来的安装方式可以完全参考suica的教程了。如果我的数据库恢复没有失败，我的步骤就会参考版本回滚的那个教程……但……是……(⋟﹏⋞)</p>
+<p>重装成功之后，我发现我之前的数据是彻底没有了，366MB也毫无作用。</p>
+<h2 id=pleroma新版本有列表功能了>pleroma新版本有列表功能了</h2>
+<p>当我升级到2.5后，发现了新版本已经有列表分类功能，所以第一个问题就解决了，我暂时没有兴趣去装别的前端了。不过如果要自己动手做pleroma的主题，还是要装pleroma-fe的前端。</p>
+<h2 id=后续>后续</h2>
+<p>过了一天，我查资料的时候看到了
+<a href=https://dabr.ca/notice/ASIIfXSYztsow8VkdE>https://dabr.ca/notice/ASIIfXSYztsow8VkdE</a></p>
+<p>看完之后我好像明白了之前踩坑的原因了。于是我想着，等过半个月之后，我的新站又缓存了一些数据，并且在硬盘空间较为充足的情况下，我再试着用一用清理数据库的那两个命令，也许这一次不会再报错了。试一试呢。</p></div>
 <div class=post_footer>
 <div class=meta>
 <div class=info>

@@ -68,29 +68,26 @@
 </div>
 <div class="post_content markdown"><p>运行pleroma一年后的debug、数据备份和版本升级。</p>
 <p>pleroma在我租的那台1G 内存，25GB的小vps里运行一年了，在使用中逐渐出现一些问题和新的需求。</p>
-<h2 id=最想要解决的两个问题>最想要解决的两个问题：</h2>
+<h1 id=最想要解决的两个问题>最想要解决的两个问题：</h1>
 <ul>
 <li>
-<p>我关注的fedi用户数量超过了150，时间线上消息太多看不过来，需要进行列表分类，而我的低版本2.4pleroma没有列表功能</p>
-<ul>
-<li>已知 pleroma的前端之一soapbox可以做列表，我要去学一学怎么装这个前端吗？但又看过soapbox与pleroma开发者们发生的争执，所以我不是很想学。</li>
-</ul>
+<p>我关注的fediverse用户超过了150个，时间线上消息太多看不过来，需要用列表分类。而低版本2.4pleroma没有列表功能。已知 pleroma的前端之一soapbox可以做列表，但看过soapbox与pleroma开发者们发生的争执后，我并不是很想学怎么装这个前端。所以，有别的办法吗？</p>
 </li>
 <li>
-<p>从去年下半年开始，时间线频繁出现了刷不出嘟友最新嘟文、时间线乱序、直接与某些嘟友实例断联的问题，我一开始是用重启解决 <code>systemctl restart pleroma.service</code>，每次重启后短暂恢复了一下，但过了几天又是同样的问题。</p>
+<p>去年下半年以来，时间线频繁出现了刷不出嘟友最新嘟文、乱序、与某些实例断联的问题。我一开始用重启解决 <code>systemctl restart pleroma.service</code>，每次重启后可以短暂恢复，但过了几天又是同样的问题。这究竟是怎么回事呢？</p>
 </li>
 </ul>
-<h2 id=不得不学的基本操作>不得不学的基本操作</h2>
+<h1 id=不得不学的基本操作>不得不学的基本操作</h1>
 <ul>
 <li>pleroma数据备份 和 版本升级
 <ul>
-<li>一直拖着不学这几个操作的原因之一，是我之前还不太懂怎么备份，担心操作不当会把整个站炸掉，所以能拖就拖，拖到了今天。</li>
-<li>前段时间，我的pleroma实例彻底与某些实例断联，让我猜想是不是我站版本太低了（otz努力赶上大部队），其次考虑到以后可能要换vps，不可能一直不学备份。只能硬着头皮动手学了。</li>
+<li>前段时间，我的pleroma实例彻底与某些实例断联，让我猜想是不是我站版本太低了（otz努力赶上大部队）。</li>
+<li>其次考虑到以后可能要换vps，不可能一直不学备份。只能硬着头皮动手学了。</li>
 </ul>
 </li>
 </ul>
-<h2 id=参考资料>参考资料</h2>
-<p>基于上面的问题和需求，我去搜了一些相关的资料，发现中文pleroma教程越来越多了( •̀ ω •́ )y<br>
+<h1 id=参考资料>参考资料</h1>
+<p>基于上面的需求，我去搜了一些相关的资料，发现中文pleroma教程越来越多了( •̀ ω •́ )y<br>
 以下是各种参考资料：</p>
 <p><a href=https://blog.debula.ml/index.php/archives/5/>https://blog.debula.ml/index.php/archives/5/</a> 【数据备份、版本升级、前端 等】<br>
 <a href=https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/>https://im.happytoo.cyou/posts/2301%E5%A4%87%E4%BB%BDpleroma/</a> 【数据备份】<br>
@@ -99,9 +96,9 @@
 <a href=https://dabr.ca/notice/AQfGjf2GH0kYH3XE9I>https://dabr.ca/notice/AQfGjf2GH0kYH3XE9I</a> 【相似的报错2】</p>
 <p><strong>（非常感谢大家的pleroma相关讨论和各种教程，给了我很多启发和帮助。只有多交流才会有进步的可能~）</strong></p>
 <h1 id=思路>思路</h1>
-<p>说起来，去年的pleroma安装完全是复制粘贴suica写好的教程，我对于PostgreSQL、nginx这些概念完全不懂。而今年要思考怎么修好实例，就得自己提出一些猜测，自己去学着验证。去年是简单地理解概念，今年要求更深入地理解陌生概念，还得额外面临一些不确定性进行试错和快速复原，所以学习的成本和难度增加了。</p>
-<p>最后，我的pleroma检修思路是：先备份，再检查内存和储存的情况，再针对性地解决问题，问题解决失败了，于是重装升级。</p>
-<p>这篇博文按这个顺序记录了全过程。</p>
+<p>去年的pleroma安装，我完全是复制粘贴suica写好的教程，对于PostgreSQL、nginx这些概念完全不懂。</p>
+<p>今年要思考怎么修好实例，自己就得提出一些猜测，再学着验证。去年只要求简单地理解概念，今年要求更深入地理解概念，还得额外面临一些不确定性进行试错和快速复原，所以学习的成本和难度增加了。最后，我的pleroma检修思路是：先备份，再检查内存和储存的情况，再针对性地解决问题，问题解决失败了，于是重装升级。</p>
+<p>以下是全过程的记录。</p>
 <h2 id=备份>备份</h2>
 <h3 id=pleroma单个账号的数据备份>pleroma单个账号的数据备份</h3>
 <p>只要该pleroma实例开通了邮件功能，就可以使用kana以前写的脚本进行备份，亲测有用。</p>
@@ -127,12 +124,11 @@ Swap:            0B          0B          0B
 Mem:          987Mi       393Mi       163Mi       299Mi       430Mi       195Mi
 Swap:            0B          0B          0B
 </code></pre>
-<p>于是我做了一些拯救1G内存的操作，感觉没啥用但有个安慰：</p>
-<p>在pleroma-fe 的settings - instance中，我把100调成了80</p>
-<p>Fed. incoming replies max depth
-100
-Max. depth of reply-to and reply activities fetching on incoming federation, to prevent out-of-memory situations while fetching very long threads. If set to <code>nil</code>, threads of any depth will be fetched. Lower this value if you experience out-of-memory crashes.</p>
-<p>做完这一切后，我突发奇想，查了一下数据库大小</p>
+<p>于是我做了一些拯救1G内存的操作，感觉没啥用但有个安慰：在pleroma-fe 的settings - instance中，我把100调成了80。</p>
+<pre><code>Fed. incoming replies max depth 100
+Max. depth of reply-to and reply activities fetching on incoming federation, to prevent out-of-memory situations while fetching very long threads. If set to `nil`, threads of any depth will be fetched. Lower this value if you experience out-of-memory crashes.
+</code></pre>
+<p>做完这一切后，我突发奇想，查了一下数据库大小。</p>
 <pre><code>root@XXXXXXXX:~# su - postgres
 postgres@vm367944:~$ psql
 
@@ -176,14 +172,15 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 13:01:38.217 [debug] QUERY ERROR source=&quot;objects&quot; db=112930.9ms queue=2.6ms idle=846.6ms
 DELETE FROM &quot;objects&quot; AS o0 WHERE (o0.&quot;data&quot;-&gt;'to' ? $1 OR o0.&quot;data&quot;-&gt;'cc' ? $2) AND (o0.&quot;inserted_at&quot; &lt; $3) AND (split_part(o0.&quot;data&quot;-&gt;&gt;'actor', '/', 3) != $4) [&quot;https://www.w3.org/ns/activitystreams#Public&quot;, &quot;https://www.w3.org/ns/activitystreams#Public&quot;, ~N[2023-01-09 09:59:45], &quot;dasgelobteland.art&quot;]==
-</code></pre>
-<p>** (DBConnection.ConnectionError) tcp recv: closed
+
+** (DBConnection.ConnectionError) tcp recv: closed
 lib/ecto/adapters/sql.ex:760: Ecto.Adapters.SQL.raise_sql_call_error/1
 lib/ecto/adapters/sql.ex:693: Ecto.Adapters.SQL.execute/5
 lib/mix/tasks/pleroma/database.ex:97: Mix.Tasks.Pleroma.Database.run/1
 (stdlib 3.12.1) erl_eval.erl:680: :erl_eval.do_apply/6
-(elixir 1.10.3) lib/code.ex:341: Code.eval_string_with_error_handling/3</p>
-<pre><code># 显然出现了报错，但我已经看不懂了。我继续执行了FUll
+(elixir 1.10.3) lib/code.ex:341: Code.eval_string_with_error_handling/3
+
+# 显然出现了报错，但我已经看不懂了。我继续执行了FUll
 
 root@XXXXXX:~# su pleroma -s $SHELL -lc &quot;./bin/pleroma_ctl database vacuum full &quot;
 
@@ -206,8 +203,7 @@ lib/ecto/adapters/sql.ex:760: Ecto.Adapters.SQL.raise_sql_call_error/1
 <h2 id=重装升级>重装升级</h2>
 <p>如果站没有炸，我可能会试一试用 <a href=https://docs-develop.pleroma.social/backend/administration/updating/>https://docs-develop.pleroma.social/backend/administration/updating/</a> 里面的 OTP installations 命令来升级pleroma （下次再试吧）</p>
 <p>可惜数据库已经被我搞得一塌糊涂，所以我采取了 彻底删除 ，再 重新安装pleroma新版本的思路来升级</p>
-<pre><code>```
-# 在root用户下 停止pleroma服务
+<pre><code># 在root用户下 停止pleroma服务
 systemctl stop pleroma
 # 禁用pleroma 
 systemctl disable pleroma
@@ -221,14 +217,9 @@ systemctl disable pleroma
 /etc/nginx/sites-enabled  
 
 /etc/systemd/system/pleroma.service  
-
-如果没删干净，在重新安装时候会出现相关报错，只需要根据报错再去删掉就行
-如果安装成功后，输入pleroma实例网址，却出现页面空白，浏览器开发工具显示是某些js加载失败，或者出现net::ERR_HTTP2_PROTOCOL_ERROR的报错，极大可能是nginx出了问题，可以卸载整个nginx再重装。
-
-如果担心nginx没删干净，也直接卸载再重装。
-
-```
-# 删除除/etc/nginx 配置文件外的所有文件
+</code></pre>
+<p>如果没删干净，在重新安装时候会出现相关报错，只需要根据报错再去删掉就行。如果安装成功后，输入pleroma实例网址，却出现页面空白，浏览器开发工具显示是某些js加载失败，或者出现<code>net::ERR_HTTP2_PROTOCOL_ERROR</code>的报错，极大可能是nginx出了问题，可以卸载整个nginx再重装。如果担心nginx没删干净，也直接卸载再重装。</p>
+<pre><code># 删除除/etc/nginx 配置文件外的所有文件
 sudo apt-get remove nginx
 
 # 删除nginx配置文件
@@ -241,22 +232,21 @@ sudo apt-get autoremove
 apt-get -o DPkg::options::=--force-confmiss --reinstall install nginx
 </code></pre>
 <p>重启 nginx<code>systemctl reload nginx</code></p>
-<p>删除数据库和数据库用户 &lt;pleroma_db>替换为你的pleroma数据库名称，默认名称就是pleroma，如果不是，可以通过psql命令查询
-sudo -Hu postgres psql -c &lsquo;DROP DATABASE &lt;pleroma_db>;';</p>
-<pre><code>sudo -Hu postgres psql -c 'DROP USER &lt;pleroma_db&gt;;'
+<p>删除数据库和数据库用户 &lt;pleroma_db>替换为你的pleroma数据库名称，默认名称就是pleroma，如果不是，可以通过psql命令查询</p>
+<pre><code>sudo -Hu postgres psql -c 'DROP DATABASE &lt;pleroma_db&gt;;';
+sudo -Hu postgres psql -c 'DROP USER &lt;pleroma_db&gt;;'
 </code></pre>
-<p>删除系统用户 <code>userdel pleroma</code></p>
-<p>可能会出现这样的报错提醒：userdel: user vivek is currently used by process 749 error and fix on Linux</p>
-<p>于是参考https://www.cyberciti.biz/faq/userdel-user-vivek-is-currently-used-by-process-749-error-and-fix-on-linux/</p>
+<p>删除系统用户 <code>userdel pleroma</code>可能会出现这样的报错提醒：<code>userdel: user vivek is currently used by process 749 error and fix on Linux</code></p>
+<p>于是参考了 <a href=https://www.cyberciti.biz/faq/userdel-user-vivek-is-currently-used-by-process-749-error-and-fix-on-linux/>https://www.cyberciti.biz/faq/userdel-user-vivek-is-currently-used-by-process-749-error-and-fix-on-linux/</a></p>
 <pre><code># 停止运行
 kill -15 749（749替换为对应出现的数字）
 
 # 重新尝试删除
 userdel pleroma
 </code></pre>
-<p>我是逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。</p>
+<p>我逐一停止运行后再删掉了pleroma系统用户，这个网页里面的 killall并没有起效。在尝试中，有一次我放弃了彻底删除系统用户这个操作，想着凑合着安装试一试，但发现如果不删干净还是会出问题，所以还是能删就删。</p>
 <p>最后，重新按照suica的教程进行otp 方式的安装，只不过这一次的安装包地址我就换成了最新的pleroma2.5版本</p>
-<p>安装包地址请参考https://blog.debula.ml/index.php/archives/5/#1.%E7%A4%BE%E4%BA%A4%E7%BD%91%E7%BB%9C%EF%BC%9APleroma 里面的寻找方式，我使用的也是amd64</p>
+<p>安装包地址请参考 <a href=https://blog.debula.ml/index.php/archives/5/#1.%E7%A4%BE%E4%BA%A4%E7%BD%91%E7%BB%9C%EF%BC%9APleroma>https://blog.debula.ml/index.php/archives/5/#1.%E7%A4%BE%E4%BA%A4%E7%BD%91%E7%BB%9C%EF%BC%9APleroma</a> 里面的寻找方式，我使用的也是amd64</p>
 <pre><code># 下载安装 Pleroma 2.5 所需的文件到 /tmp 文件夹并解压
 
 su pleroma -s $SHELL -lc &quot;curl 'https://git.pleroma.social/pleroma/pleroma/-/jobs/226602/artifacts/download?file_type=archive'  -o /tmp/pleroma.zip 

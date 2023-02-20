@@ -130,7 +130,7 @@ Max. depth of reply-to and reply activities fetching on incoming federation, to 
 </code></pre>
 <p>做完这一切后，我突发奇想，查了一下数据库大小。</p>
 <pre><code>root@XXXXXXXX:~# su - postgres
-postgres@vm367944:~$ psql
+postgres@XXXXXXX:~$ psql
 
 postgres=# SELECT pg_size_pretty( pg_database_size('pleroma') );
 pg_size_pretty

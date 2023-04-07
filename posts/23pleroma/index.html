@@ -130,7 +130,7 @@ Max. depth of reply-to and reply activities fetching on incoming federation, to 
 </code></pre>
 <p>做完这一切后，我突发奇想，查了一下数据库大小。</p>
 <pre><code>root@XXXXXXXX:~# su - postgres
-postgres@XXXXXXX:~$ psql
+postgres@vm367944:~$ psql
 
 postgres=# SELECT pg_size_pretty( pg_database_size('pleroma') );
 pg_size_pretty
@@ -259,7 +259,61 @@ unzip /tmp/pleroma.zip -d /tmp/&quot;
 <h2 id=后续>后续</h2>
 <p>过了一天，我查资料的时候看到了
 <a href=https://dabr.ca/notice/ASIIfXSYztsow8VkdE>https://dabr.ca/notice/ASIIfXSYztsow8VkdE</a></p>
-<p>看完之后我好像明白了之前踩坑的原因了。于是我想着，等过半个月之后，我的新站又缓存了一些数据，并且在硬盘空间较为充足的情况下，我再试着用一用清理数据库的那两个命令，也许这一次不会再报错了。试一试呢。</p></div>
+<p>看完之后我好像明白了之前踩坑的原因了。于是我想着，等过半个月之后，我的新站又缓存了一些数据，并且在硬盘空间较为充足的情况下，我再试着用一用清理数据库的那两个命令，也许这一次不会再报错了。试一试呢。</p>
+<p>2023/4/7 更新</p>
+<p>4月2号重新折腾了一下，结果如下：</p>
+<p>查了下两个月的数据库增长情况：2个月里面站子没有加任何中继，但数据库依然高达960MB……悲QAQ</p>
+<p>用pg_dump备份了，成功 （这一步是为了防止下面的清理数据库出问题，备份太重要了……）</p>
+<p>然后开始清理数据库，打算删掉30天以前的所有外站缓存，也就是要重新尝试上次那两个清理数据库的命令。先在管理员模式里面 的 setting - instance - Remote post retention days ，把默认的90天缓存改成30天</p>
+<pre><code># 删除30天之前的外站缓存嘟文，成功的话大概是下面的反应
+ root@XXXXX:~# su pleroma -s $SHELL -lc &quot;./bin/pleroma_ctl database prune_objects&quot;
+ 
+ 13:05:45.220 [info]  Pruning objects older than 30 days
+ 13:05:48.075 [debug] QUERY OK source=&quot;objects&quot; db=2845.5ms queue=7.8ms idle=655.6ms
+ DELETE FROM &quot;objects&quot; AS o0 WHERE (o0.&quot;data&quot;-&gt;'to' ? $1 OR o0.&quot;data&quot;-&gt;'cc' ? $2) AND (o0.&quot;inserted_at&quot; &lt; $3) AND (split_part(o0.&quot;data&quot;-&gt;&gt;'actor', '/', 3) != $4) XXXXXXXXXXXXXXXXXXXXXXXX
+ 13:05:48.252 [debug] QUERY OK db=170.6ms queue=2.2ms idle=1511.1ms
+ DELETE FROM hashtags AS ht
+ WHERE NOT EXISTS (
+ SELECT 1 FROM hashtags_objects hto
+ WHERE ht.id = hto.hashtag_id)
+
+# 整理数据库
+ root@XXXXX:~# su pleroma -s $SHELL -lc &quot;./bin/pleroma_ctl database vacuum full&quot;
+ 13:07:04.861 [info]  Running VACUUM FULL.
+ 13:07:04.861 [warn]  Re-packing your entire database may take a while and will consume extra disk space during the process.
+ Session terminated, killing shell... ...killed.
+</code></pre>
+<p>重新查看数据库大小，小了很多，从960MB降到529MB。这下才开始真正地备份~ 再一次用pg_dump备份。</p>
+<pre><code># 暂停运行实例
+ root@XXXXX:~# su pleroma -s $SHELL -lc &quot;./bin/pleroma stop&quot;
+
+# 创建存放数据库文件的文件夹，写入权限
+ root@XXXXX:~# mkdir -p /pleromabackup
+ root@XXXXX:~# chmod 777 /pleromabackup
+
+# 用pg_dump备份
+ root@XXXXX:~# su - postgres
+ postgres=# \! pg_dump pleroma -f /pleromabackup/pleroma.pgdump
+</code></pre>
+<p>pleroma 从版本2.5 升级到 2.5.1。上一次我是重新下载pleroma安装包来升级，这一次我就用了官方的OTP命令。</p>
+<pre><code># 升级
+ root@XXXXX:~# su pleroma -s $SHELL -lc &quot;./bin/pleroma_ctl update&quot;
+</code></pre>
+<p>升级之后，然后跟着 <a href=https://docs.pleroma.social/backend/administration/backup/#restoremove>https://docs.pleroma.social/backend/administration/backup/#restoremove</a> 的步骤来恢复pleroma，也可以参考 <a href=https://blog.debula.ml/index.php/archives/5/#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D/%E7%89%88%E6%9C%AC%E5%9B%9E%E6%BB%9A>https://blog.debula.ml/index.php/archives/5/#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D/%E7%89%88%E6%9C%AC%E5%9B%9E%E6%BB%9A</a> 里面记录的数据恢复过程。步骤主要是 ：重新生成数据库配置，改密码；清空数据库；重建数据库 （不再赘述）</p>
+<p>恢复数据</p>
+<pre><code>#  这一步我就用不了pg_restore了，报错如下：
+
+ root@XXXXX:~# sudo -Hu postgres pg_restore -d pleroma -v -j 4 /pleromabackup/pleroma.pgdump
+ could not change directory to &quot;/root&quot;: Permission denied
+ pg_restore: [archiver] input file appears to be a text format dump. Please use psql.
+</code></pre>
+<p>参考了 <a href=https://stackoverflow.com/questions/68824946/pg-restore-archiver-input-file-appears-to-be-a-text-format-dump-please-use-p>https://stackoverflow.com/questions/68824946/pg-restore-archiver-input-file-appears-to-be-a-text-format-dump-please-use-p</a> ，解决了。</p>
+<pre><code> # 用psql恢复数据库，注意它可能会非常慢，需要耐心地等待……我等了20min
+ root@XXXXX:~# sudo -u postgres psql pleroma &lt; /pleromabackup/pleroma.pgdump
+</code></pre>
+<p>关于这个恢复速度不一样的原因，请看 <a href=https://www.qiniu.com/qfans/qnso-71884114#comments>https://www.qiniu.com/qfans/qnso-71884114#comments</a> ，以及得到了debula （还不知道该怎么正确地称呼人家……otz）的讲解：*pg_restore 的提示看着像是备份的命令有问题，保存的是重建数据库的sql命令。最后因为恢复本质上是在一行一行执行sql，很容易卡住。如果想加速可以把 -1 改成 -j 4，-j 4 是 pg_restore 用 4 个线程同时恢复的参数，psql 里面没有 <a href=https://www.postgresql.org/docs/current/app-pgrestore.html>https://www.postgresql.org/docs/current/app-pgrestore.html</a> *</p>
+<p>我大概明白了pg_restore和psql这两种恢复方式的区别：<code>sudo -Hu postgres pg_restore（采用了pg_restore） -d（后缀 dbname） pleroma -v -j 4(4个线程) /pleromabackup/pleroma.pgdump （我的路径）</code> 而我用的另一种是 <code>sudo -u postgres psql db_name &lt; 'file_path'</code>，而后者psql比pg_restore慢，所以等了很久。不过，我不明白为什么会报错我的备份格式不对？我直接抄的备份命令……那别人为啥没有这个报错呢？还好，最后用psql恢复也达到效果了。那我下次再认真探究这个问题吧。</p>
+<p>恢复数据库成功后，再重新启动pleroma即可。</p></div>
 <div class=post_footer>
 <div class=meta>
 <div class=info>
